@@ -47,13 +47,17 @@ Prüft Rechenkern und CSV-Parser gegen die Dateien in `beispiel/`.
 
 ## Lokal ausprobieren
 
-Wegen ES-Modulen und `fetch` einen kleinen Webserver nutzen, z. B.:
+Wegen ES-Modulen und `fetch` muss die App über einen Webserver laufen (nicht per
+Doppelklick auf `index.html`). Ohne Zusatzinstallation unter Windows:
 
-```bash
-npx serve .
-# oder
-python -m http.server 8000
+```powershell
+.\serve.ps1
 ```
+
+Dann im Browser `http://localhost:8777/` öffnen. (`serve.ps1` ist ein kleiner
+lokaler Server, nur zum Testen – für den echten Betrieb GitHub Pages verwenden.)
+
+Alternativ mit vorhandenem Node/Python: `npx serve .` bzw. `python -m http.server 8000`.
 
 ## Deploy auf GitHub Pages
 
