@@ -1,0 +1,14 @@
+{
+  "name": "KR-Abrechnung",
+  "short_name": "KR-Abrechnung",
+  "description": "Aufwandsentschädigung für Kampfrichter nach einem Schwimm-Wettkampf",
+  "lang": "de",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#1f5c8b",
+  "icons": [
+    { "src": "assets/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any maskable" }
+  ]
+}

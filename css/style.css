@@ -1,0 +1,98 @@
+:root{
+  --bg:#f4f6f8; --panel:#ffffff; --ink:#1c2733; --muted:#5a6b7b;
+  --line:#d5dee6; --accent:#1f5c8b; --accent-ink:#ffffff;
+  --ok:#1f7a4d; --warn:#a15c00; --warn-bg:#fff3df; --err:#b3261e; --err-bg:#fdecea;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg); color:var(--ink);
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3{line-height:1.2}
+h2{font-size:1.35rem;margin:.2em 0 .6em}
+h3{font-size:1.05rem;margin:1.2em 0 .4em}
+a{color:var(--accent)}
+
+/* ---- App bar ---- */
+.appbar{
+  position:sticky;top:0;z-index:20;background:var(--accent);color:var(--accent-ink);
+  display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;
+  padding:.5rem .9rem;padding-top:max(.5rem,env(safe-area-inset-top));
+}
+.appbar-title{font-weight:700;font-size:1.05rem;white-space:nowrap}
+.projektname{font-weight:400;opacity:.85;font-size:.9rem}
+.appbar-status{margin-left:auto;font-size:.8rem;opacity:.85;white-space:nowrap}
+.appbar-status.dirty{opacity:1;font-weight:600}
+.nav{display:flex;flex-wrap:wrap;gap:.35rem}
+.nav button{
+  appearance:none;border:0;border-radius:999px;padding:.5rem .9rem;
+  background:rgba(255,255,255,.14);color:#fff;font-size:.92rem;cursor:pointer;
+}
+.nav button.active{background:#fff;color:var(--accent);font-weight:700}
+.nav button:disabled{opacity:.4;cursor:not-allowed}
+
+/* ---- Layout ---- */
+.view{max-width:1050px;margin:0 auto;padding:1rem .9rem 4rem}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:1rem;margin:0 0 1rem}
+.row{display:flex;flex-wrap:wrap;gap:.75rem;align-items:flex-end}
+.grow{flex:1 1 12rem}
+.hint{color:var(--muted);font-size:.88rem}
+.stack>*+*{margin-top:.6rem}
+
+/* ---- Controls ---- */
+label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:.15rem}
+input[type=text],input[type=date],input[type=time],input[type=number],select,textarea{
+  width:100%;font:inherit;padding:.55rem .6rem;border:1px solid var(--line);
+  border-radius:8px;background:#fff;color:var(--ink);min-height:44px;
+}
+textarea{min-height:5rem;resize:vertical}
+button,.btn{
+  appearance:none;font:inherit;cursor:pointer;border:1px solid var(--accent);
+  background:var(--accent);color:#fff;border-radius:8px;padding:.6rem 1rem;min-height:44px;
+}
+button.secondary,.btn.secondary{background:#fff;color:var(--accent)}
+button.ghost{background:transparent;border-color:transparent;color:var(--accent);padding:.4rem .5rem}
+button.danger{background:var(--err);border-color:var(--err)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.filebtn{position:relative;overflow:hidden;display:inline-block}
+.filebtn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* ---- Tables ---- */
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.93rem;background:#fff}
+th,td{padding:.5rem .6rem;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{background:#eef3f7;position:sticky;top:0;font-size:.82rem;color:var(--muted);white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.off td{opacity:.45}
+tr.warn td{background:var(--warn-bg)}
+td select,td input{min-height:38px;padding:.35rem .4rem}
+.matrix td{min-width:11rem}
+.matrix .cell-inaktiv{color:var(--muted)}
+
+/* ---- Badges / messages ---- */
+.badge{display:inline-block;padding:.1rem .5rem;border-radius:999px;font-size:.78rem;background:#e7eef4;color:var(--muted)}
+.badge.ok{background:#e3f2ea;color:var(--ok)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.msg{border-radius:8px;padding:.6rem .8rem;margin:.5rem 0;font-size:.9rem}
+.msg.warn{background:var(--warn-bg);color:var(--warn)}
+.msg.err{background:var(--err-bg);color:var(--err)}
+.msg.ok{background:#e3f2ea;color:var(--ok)}
+.summe{font-size:1.15rem;font-weight:700}
+
+/* ---- Modal ---- */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,25,35,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:1rem}
+.modal{background:#fff;border-radius:12px;max-width:640px;width:100%;max-height:90vh;overflow:auto;padding:1.1rem}
+.modal h3{margin-top:0}
+.sigpad{border:2px dashed var(--line);border-radius:10px;background:#fff;touch-action:none;width:100%;height:220px;display:block}
+.modal-actions{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+
+/* ---- Footer ---- */
+.appfoot{max-width:1050px;margin:0 auto;padding:1rem .9rem 2rem;color:var(--muted);font-size:.8rem;display:flex;justify-content:space-between;gap:1rem}
+
+@media (max-width:560px){
+  .appbar-title{font-size:.95rem}
+  .view{padding:.8rem .6rem 4rem}
+}

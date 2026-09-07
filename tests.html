@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><title>KR-Abrechnung – Selbsttest</title>
+<style>
+ body{font:15px/1.5 system-ui,sans-serif;margin:2rem;max-width:820px}
+ .ok{color:#1f7a4d}.fail{color:#b3261e;font-weight:700}
+ pre{background:#f4f6f8;padding:.4rem .6rem;border-radius:6px;white-space:pre-wrap}
+ h2{margin-top:1.6rem}
+</style></head>
+<body>
+<h1>Selbsttest</h1>
+<p>Prüft Rechenkern und CSV-Parser gegen die Beispieldateien. Alle Zeilen sollten grün sein.</p>
+<div id="out"></div>
+
+<script type="module">
+import { betragJeAbschnitt, defaultSaetze } from './js/rates.js';
+import { parseMeldelisteText, splitName } from './js/import-csv.js';
+import { personBetrag, personTage, dauerMin } from './js/calc.js';
+
+const out = document.getElementById('out');
+let pass = 0, fail = 0;
+function ok(name, cond, got) {
+  const line = document.createElement('div');
+  line.className = cond ? 'ok' : 'fail';
+  line.textContent = (cond ? '✓ ' : '✗ ') + name + (cond ? '' : `  (erhalten: ${JSON.stringify(got)})`);
+  out.appendChild(line);
+  cond ? pass++ : fail++;
+}
+function group(t){ const h=document.createElement('h2'); h.textContent=t; out.appendChild(h); }
+
+// ---- betragJeAbschnitt: Grenzfälle ----
+group('betragJeAbschnitt (Grundsatz 12 / Maximalsatz 15)');
+const kr = { grund: 12, max: 15 };
+ok('d=120 → 12 (Grundsatz)',      betragJeAbschnitt(120, kr) === 12, betragJeAbschnitt(120, kr));
+ok('d=121 → 15 (Maximalsatz)',    betragJeAbschnitt(121, kr) === 15, betragJeAbschnitt(121, kr));
+ok('d=180 → 15 (Maximalsatz)',    betragJeAbschnitt(180, kr) === 15, betragJeAbschnitt(180, kr));
+ok('d=181 → 24 (2× Grundsatz)',   betragJeAbschnitt(181, kr) === 24, betragJeAbschnitt(181, kr));
+ok('d=260 → 24 (2× Grundsatz)',   betragJeAbschnitt(260, kr) === 24, betragJeAbschnitt(260, kr));
+ok('d=261 → 36 (3× Grundsatz)',   betragJeAbschnitt(261, kr) === 36, betragJeAbschnitt(261, kr));
+const sr = { grund: 15, max: 18 };
+ok('Schiedsrichter d=200 → 30',   betragJeAbschnitt(200, sr) === 30, betragJeAbschnitt(200, sr));
+
+// ---- Stefans Rechenbeispiel: 200 min + 178 min für einen Kampfrichter → 39 € ----
+group("Rechenbeispiel: Kampfrichter, Abschnitt 200 min + 178 min");
+const project = {
+  abschnitte: [
+    { id: 'a1', nr: 1, datum: '2026-04-25', beginn: '09:00', ende: '12:20' }, // 200 min
+    { id: 'a2', nr: 2, datum: '2026-04-26', beginn: '09:00', ende: '11:58' }, // 178 min
+  ],
+  saetze: defaultSaetze(),
+  personen: [],
+};
+ok('Abschnitt 1 Dauer = 200',  dauerMin(project.abschnitte[0]) === 200, dauerMin(project.abschnitte[0]));
+ok('Abschnitt 2 Dauer = 178',  dauerMin(project.abschnitte[1]) === 178, dauerMin(project.abschnitte[1]));
+const person = { einsaetze: [
+  { abschnittId: 'a1', rolleKey: 'schwimmrichter', imEinsatz: true },
+  { abschnittId: 'a2', rolleKey: 'schwimmrichter', imEinsatz: true },
+] };
+ok('Betrag = 39 € (2×12 + 15)',  personBetrag(person, project) === 39, personBetrag(person, project));
+ok('Tage = 2',  personTage(person, project) === 2, personTage(person, project));
+
+// ---- splitName ----
+group('Namens-Zerlegung');
+ok('"Böhmert, Jan (P-SCH)"', JSON.stringify(splitName('Böhmert, Jan (P-SCH)')) === JSON.stringify({ nachname: 'Böhmert', vorname: 'Jan', zusatz: 'P-SCH' }), splitName('Böhmert, Jan (P-SCH)'));
+ok('"Wilisch-Brosche, Franziska"', splitName('Wilisch-Brosche, Franziska').nachname === 'Wilisch-Brosche', splitName('Wilisch-Brosche, Franziska'));
+
+// ---- CSV-Parser gegen die Beispieldatei ----
+group('CSV-Parser: beispiel/meldungen.csv');
+try {
+  const buf = await fetch('./beispiel/meldungen.csv').then(r => r.arrayBuffer());
+  const text = new TextDecoder('windows-1252').decode(buf);
+  const parsed = parseMeldelisteText(text);
+  ok('3 Abschnitte erkannt', parsed.abschnitte.length === 3, parsed.abschnitte.map(a => a.nr));
+  ok('35 verschiedene Personen', parsed.personen.length === 35, parsed.personen.length);
+  const zocher = parsed.personen.find(p => p.nachname === 'Zocher');
+  const christ = parsed.personen.find(p => p.nachname === 'Christmann');
+  ok('Zocher, Ulrike = Abgemeldet', zocher && zocher.status === 'Abgemeldet', zocher);
+  ok('Christmann, Andrea = Abgemeldet', christ && christ.status === 'Abgemeldet', christ);
+  const bestaetigt = parsed.personen.filter(p => p.status === 'Bestätigt');
+  ok('33 bestätigte Personen', bestaetigt.length === 33, bestaetigt.length);
+  ok('2 abgemeldete Personen', parsed.personen.filter(p => p.status === 'Abgemeldet').length === 2, null);
+  const dreiAbschnitte = bestaetigt.filter(p => p.abschnittNummern.length === 3).length;
+  ok('21 bestätigte in allen 3 Abschnitten', dreiAbschnitte === 21, dreiAbschnitte);
+  const nurA1 = bestaetigt.filter(p => p.abschnittNummern.join() === '1').length;
+  ok('6 bestätigte nur in Abschnitt 1', nurA1 === 6, nurA1);
+  const nurA23 = bestaetigt.filter(p => p.abschnittNummern.join() === '2,3').length;
+  ok('6 bestätigte nur in Abschnitt 2+3', nurA23 === 6, nurA23);
+  const veranstaltung = parsed.veranstaltung;
+  ok('Veranstaltungsname erkannt', /BZM/.test(veranstaltung.name || ''), veranstaltung);
+  ok('Datum von = 2026-04-25', veranstaltung.datumVon === '2026-04-25', veranstaltung.datumVon);
+} catch (e) {
+  ok('CSV-Beispiel geladen', false, String(e));
+}
+
+const sum = document.createElement('h2');
+sum.textContent = `Ergebnis: ${pass} ok, ${fail} fehlgeschlagen`;
+sum.style.color = fail ? '#b3261e' : '#1f7a4d';
+out.prepend(sum);
+</script>
+</body>
+</html>

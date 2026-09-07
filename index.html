@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f5c8b">
+<title>KR-Abrechnung</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-title">KR&#8209;Abrechnung <span id="projektname" class="projektname"></span></div>
+  <nav id="nav" class="nav"></nav>
+  <div class="appbar-status" id="speicherstatus" title="Automatisch im Browser gesichert">gesichert</div>
+</header>
+
+<main id="view" class="view"></main>
+
+<div id="modal-root"></div>
+
+<footer class="appfoot">
+  <span>Aufwandsentsch&auml;digung Schwimm&#8209;Wettkampf &middot; alle Daten bleiben auf diesem Ger&auml;t</span>
+  <a href="tests.html" target="_blank" rel="noopener">Selbsttest</a>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+</script>
+</body>
+</html>
