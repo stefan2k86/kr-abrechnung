@@ -1,5 +1,5 @@
 // Berechnung: Dauer, Betrag je Person, Tage, Abschnittsliste, Validierung.
-import { betragJeAbschnitt, rollenLabel, istLaeuferRolle } from './rates.js';
+import { betragJeAbschnitt, rollenLabel, kuerzelFor, istLaeuferRolle } from './rates.js';
 
 export function parseHM(hm) {
   const m = /^(\d{1,2}):(\d{2})$/.exec((hm || '').trim());
@@ -58,12 +58,15 @@ export function personAufstellung(person, project) {
       const d = dauerMin(ab);
       const satz = e.rolleKey ? project.saetze[e.rolleKey] : null;
       const betrag = satz ? betragJeAbschnitt(d, satz, { keinDoppelsatz: istLaeuferRolle(e.rolleKey) }) : 0;
-      return { abschnittNr: ab.nr, dauerMin: d, rolleKey: e.rolleKey, rolleLabel: rollenLabel(e.rolleKey), betrag };
+      return {
+        abschnittNr: ab.nr, dauerMin: d, rolleKey: e.rolleKey,
+        rolleLabel: rollenLabel(e.rolleKey), kuerzel: kuerzelFor(e.rolleKey), betrag,
+      };
     });
   const bonus = sachbearbeiterBonus(person, project);
   if (bonus) zeilen.push({
     abschnittNr: null, dauerMin: 0, rolleKey: 'sachbearbeiter',
-    rolleLabel: 'Sachbearbeiter Meldeverfahren',
+    rolleLabel: 'Sachbearbeiter Meldeverfahren', kuerzel: kuerzelFor('sachbearbeiter'),
     text: `Sachbearbeiter Meldeverfahren: ${project.abschnitte.length} Abschnitte × ${fmtEuro(project.saetze.sachbearbeiterProAbschnitt)} → ${fmtEuro(bonus)}`,
     betrag: bonus,
   });

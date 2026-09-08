@@ -1,5 +1,7 @@
 // Erzeugt die Auszahlungsliste als PDF im LSV-Sachsen-Layout (pdf-lib, lazy geladen).
-import { personName, personBetrag, personTage, personAbschnittsNummern, abzurechnendePersonen, fmtEuro } from './calc.js';
+import { personName, personBetrag, personTage, personAufstellung, abzurechnendePersonen, fmtEuro } from './calc.js';
+
+const nEuro = (n) => (Number(n) || 0).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 let pdfLibPromise = null;
 function ladePdfLib() {
@@ -48,14 +50,15 @@ export async function erzeugeAuszahlungslistePdf(project) {
   const M = { l: 36, r: 36, t: 44, b: 40 };
   const right = A4[0] - M.r;
   const col = {
-    nr:   { x: M.l,  w: 24 },
-    name: { x: 74,   w: 176 },
-    tage: { x: 258,  w: 26 },
-    absc: { x: 290,  w: 82 },
-    betr: { x: 374,  w: 68 },
-    sig:  { x: 450,  w: right - 450 },
+    nr:   { x: M.l,  w: 22 },
+    name: { x: 60,   w: 150 },
+    tage: { x: 214,  w: 22 },
+    absc: { x: 240,  w: 128 },
+    betr: { x: 372,  w: 58 },
+    sig:  { x: 438,  w: right - 438 },
   };
-  const ROW_H = 30;
+  const ROW_MIN = 30;
+  const LINE_H = 9.5;   // Höhe einer Aufschlüsselungszeile in der Abschnitte-Spalte
 
   const v = project.veranstaltung;
   const personen = abzurechnendePersonen(project);
@@ -101,7 +104,7 @@ export async function erzeugeAuszahlungslistePdf(project) {
     text('Nr.', col.nr.x, y, 8, fontB);
     text('Name', col.name.x, y, 8, fontB);
     text('Tage', col.tage.x, y, 8, fontB);
-    text('Abschnitte', col.absc.x, y, 8, fontB);
+    text('Abschnitt / Funktion / EUR', col.absc.x, y, 8, fontB);
     textR('Betrag', col.betr.x + col.betr.w - 2, y, 8, fontB);
     text('Unterschrift', col.sig.x, y, 8, fontB);
     y -= 6;
@@ -116,23 +119,42 @@ export async function erzeugeAuszahlungslistePdf(project) {
     textR(`Seite ${seite}`, right, fy + 8, 7);
   }
 
+  function rowHeight(p) {
+    if (!p) return ROW_MIN;
+    const n = personAufstellung(p, project).length;
+    return Math.max(ROW_MIN, 12 + n * LINE_H);
+  }
+
   function zeile(index, p) {
+    const h = rowHeight(p);
     const top = y;
     if (p) {
-      const rowMidY = top - ROW_H / 2 - 3;
-      text(String(index), col.nr.x, rowMidY, 8.5);
-      text(kuerzen(personName(p), col.name.w - 4, font, 8.5), col.name.x, rowMidY, 8.5);
-      text(String(personTage(p, project) || ''), col.tage.x + 6, rowMidY, 8.5);
-      text(personAbschnittsNummern(p, project).join(' | '), col.absc.x, rowMidY, 8.5);
-      textR(p.keinAnspruch ? '–' : fmtEuro(personBetrag(p, project)), col.betr.x + col.betr.w - 2, rowMidY, 8.5);
+      const topY = top - 11;
+      text(String(index), col.nr.x, topY, 8.5);
+      text(kuerzen(personName(p), col.name.w - 4, font, 8.5), col.name.x, topY, 8.5);
+      text(String(personTage(p, project) || ''), col.tage.x + 4, topY, 8.5);
+
+      // Aufschlüsselung je Abschnitt: Nr · Kürzel · Betrag
+      const auf = personAufstellung(p, project);
+      let ly = topY;
+      if (!auf.length) { text('–', col.absc.x, ly, 8); }
+      for (const z of auf) {
+        const nr = z.abschnittNr != null ? String(z.abschnittNr) : '';
+        text(nr, col.absc.x, ly, 8);
+        text(z.kuerzel || '', col.absc.x + 16, ly, 8);
+        textR(nEuro(z.betrag), col.absc.x + col.absc.w - 2, ly, 8);
+        ly -= LINE_H;
+      }
+      textR(p.keinAnspruch ? '–' : fmtEuro(personBetrag(p, project)), col.betr.x + col.betr.w - 2, topY, 8.5, fontB);
+
       const sig = p.unterschrift && sigCache.get(p.unterschrift.pngDataUrl);
       if (sig) {
-        const maxW = col.sig.w - 6, maxH = ROW_H - 8;
+        const maxW = col.sig.w - 6, maxH = h - 8;
         const sc = Math.min(maxW / sig.width, maxH / sig.height);
-        page.drawImage(sig, { x: col.sig.x + 2, y: top - ROW_H + 4, width: sig.width * sc, height: sig.height * sc });
+        page.drawImage(sig, { x: col.sig.x + 2, y: top - h + 4, width: sig.width * sc, height: sig.height * sc });
       }
     }
-    y -= ROW_H;
+    y -= h;
     line(M.l, y, right, y);
   }
 
@@ -147,18 +169,18 @@ export async function erzeugeAuszahlungslistePdf(project) {
   neueSeite(true);
   let lfd = 1;
   for (const p of personen) {
-    if (y - ROW_H < M.b + 60) { fusszeile(); neueSeite(false); }
+    if (y - rowHeight(p) < M.b + 60) { fusszeile(); neueSeite(false); }
     zeile(lfd++, p);
   }
   // Summenzeile
-  if (y - ROW_H < M.b + 60) { fusszeile(); neueSeite(false); }
+  if (y - ROW_MIN < M.b + 60) { fusszeile(); neueSeite(false); }
   y -= 4;
-  text('Summe', col.name.x, y - ROW_H / 2 - 3, 9, fontB);
-  textR(fmtEuro(summe), col.betr.x + col.betr.w - 2, y - ROW_H / 2 - 3, 9, fontB);
-  y -= ROW_H; line(M.l, y, right, y);
+  text('Summe', col.name.x, y - ROW_MIN / 2 - 3, 9, fontB);
+  textR(fmtEuro(summe), col.betr.x + col.betr.w - 2, y - ROW_MIN / 2 - 3, 9, fontB);
+  y -= ROW_MIN; line(M.l, y, right, y);
 
   // Leerzeilen bis kurz vor Seitenende
-  while (y - ROW_H > M.b + 70) zeile(lfd++, null);
+  while (y - ROW_MIN > M.b + 70) zeile(lfd++, null);
 
   // Unterschriftsblock unten
   y -= 16;

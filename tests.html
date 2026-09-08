@@ -13,9 +13,9 @@
 <div id="out"></div>
 
 <script type="module">
-import { betragJeAbschnitt, defaultSaetze } from './js/rates.js';
+import { betragJeAbschnitt, defaultSaetze, kuerzelFor } from './js/rates.js';
 import { parseMeldelisteText, splitName } from './js/import-csv.js';
-import { personBetrag, personTage, dauerMin, istAbzurechnen } from './js/calc.js';
+import { personBetrag, personTage, dauerMin, istAbzurechnen, personAufstellung } from './js/calc.js';
 
 const out = document.getElementById('out');
 let pass = 0, fail = 0;
@@ -104,6 +104,21 @@ ok('Person B mit Sachbearbeiter = 36 € (12 + 2×12)', personBetrag(sbProj.pers
 const sbOnly = { saetze: defaultSaetze(), sachbearbeiterPersonId: 'x', abschnitte: [{id:'a',nr:1,beginn:'09:00',ende:'11:00'},{id:'b',nr:2,beginn:'09:00',ende:'11:00'}], personen: [{ id:'x', einsaetze: [] }] };
 ok('Sachbearbeiter ohne Einsätze: abzurechnen', istAbzurechnen(sbOnly.personen[0], sbOnly) === true, null);
 ok('Sachbearbeiter ohne Einsätze: 24 €', personBetrag(sbOnly.personen[0], sbOnly) === 24, personBetrag(sbOnly.personen[0], sbOnly));
+
+// ---- Kürzel für die Auszahlungsliste ----
+group('Kürzel je Rolle');
+ok('Schiedsrichter → SCH', kuerzelFor('schiedsrichter') === 'SCH', kuerzelFor('schiedsrichter'));
+ok('Schwimmrichter → SR', kuerzelFor('schwimmrichter') === 'SR', kuerzelFor('schwimmrichter'));
+ok('Starter → ST', kuerzelFor('starter') === 'ST', kuerzelFor('starter'));
+ok('Läufer Stufe 2 → L2', kuerzelFor('laeufer_2') === 'L2', kuerzelFor('laeufer_2'));
+ok('Sachbearbeiter → SB', kuerzelFor('sachbearbeiter') === 'SB', kuerzelFor('sachbearbeiter'));
+// Aufstellung liefert Kürzel je Zeile
+const aufP = personAufstellung({ id: 'z', einsaetze: [
+  { abschnittId: 'q1', rolleKey: 'zeitnehmer', imEinsatz: true },
+] }, { saetze: defaultSaetze(), sachbearbeiterPersonId: null, abschnitte: [
+  { id: 'q1', nr: 1, beginn: '09:00', ende: '11:00' },
+], personen: [] });
+ok('Aufstellung: Kürzel = ZN', aufP[0].kuerzel === 'ZN', aufP[0]);
 
 // ---- Stefans Rechenbeispiel: 200 min + 178 min für einen Kampfrichter → 39 € ----
 group("Rechenbeispiel: Kampfrichter, Abschnitt 200 min + 178 min");

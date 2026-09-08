@@ -8,33 +8,41 @@ export const GRUPPEN = {
   orga: 'Organisation',
 };
 
-// Reihenfolge = Anzeigereihenfolge in Dropdowns
+// Reihenfolge = Anzeigereihenfolge in Dropdowns.
+// kuerzel = Kurzform für die Auszahlungsliste (siehe Memory „kuerzel-rollen").
 export const ROLLEN = [
-  { key: 'schiedsrichter',        label: 'Schiedsrichter',                 gruppe: 'leitung' },
-  { key: 'starter',               label: 'Starter',                        gruppe: 'leitung' },
-  { key: 'sprecher',              label: 'Sprecher',                       gruppe: 'leitung' },
-  { key: 'protokoll',             label: 'Protokollführer',           gruppe: 'auswertung' },
-  { key: 'auswerter',             label: 'Auswerter',                      gruppe: 'auswertung' },
-  { key: 'schwimmrichter',        label: 'Schwimmrichter',                 gruppe: 'kampfgericht' },
-  { key: 'zeitnehmer',            label: 'Zeitnehmer',                     gruppe: 'kampfgericht' },
-  { key: 'zeitnehmer_obmann',     label: 'Zeitnehmer-Obmann (ZNO)',        gruppe: 'kampfgericht' },
-  { key: 'wenderichter',          label: 'Wenderichter',                   gruppe: 'kampfgericht' },
-  { key: 'wenderichter_obmann',   label: 'Wenderichter-Obmann (WRO)',      gruppe: 'kampfgericht' },
-  { key: 'zielrichter',           label: 'Zielrichter',                    gruppe: 'kampfgericht' },
-  { key: 'zielrichter_obmann',    label: 'Zielrichter-Obmann (ZRO)',       gruppe: 'kampfgericht' },
-  { key: 'zeitmessanlage',        label: 'Bediener Zeitmessanlage',        gruppe: 'kampfgericht' },
-  { key: 'orgaleiter',            label: 'Organisationsleiter',            gruppe: 'orga' },
-  { key: 'orgamitarbeiter',       label: 'Organisationsmitarbeiter',       gruppe: 'orga' },
-  { key: 'orgahelfer',            label: 'Organisationshelfer',            gruppe: 'orga' },
-  { key: 'laeufer_1',             label: 'Läufer – Stufe 1',          gruppe: 'orga', laeufer: true },
-  { key: 'laeufer_2',             label: 'Läufer – Stufe 2',          gruppe: 'orga', laeufer: true },
-  { key: 'laeufer_3',             label: 'Läufer – Stufe 3',          gruppe: 'orga', laeufer: true },
+  { key: 'schiedsrichter',        label: 'Schiedsrichter',            kuerzel: 'SCH', gruppe: 'leitung' },
+  { key: 'starter',               label: 'Starter',                   kuerzel: 'ST',  gruppe: 'leitung' },
+  { key: 'sprecher',              label: 'Sprecher',                  kuerzel: 'SPR', gruppe: 'leitung' },
+  { key: 'protokoll',             label: 'Protokollführer',      kuerzel: 'PF',  gruppe: 'auswertung' },
+  { key: 'auswerter',             label: 'Auswerter',                 kuerzel: 'AW',  gruppe: 'auswertung' },
+  { key: 'schwimmrichter',        label: 'Schwimmrichter',            kuerzel: 'SR',  gruppe: 'kampfgericht' },
+  { key: 'zeitnehmer',            label: 'Zeitnehmer',                kuerzel: 'ZN',  gruppe: 'kampfgericht' },
+  { key: 'zeitnehmer_obmann',     label: 'Zeitnehmer-Obmann (ZNO)',   kuerzel: 'ZNO', gruppe: 'kampfgericht' },
+  { key: 'wenderichter',          label: 'Wenderichter',              kuerzel: 'WR',  gruppe: 'kampfgericht' },
+  { key: 'wenderichter_obmann',   label: 'Wenderichter-Obmann (WRO)', kuerzel: 'WRO', gruppe: 'kampfgericht' },
+  { key: 'zielrichter',           label: 'Zielrichter',               kuerzel: 'ZR',  gruppe: 'kampfgericht' },
+  { key: 'zielrichter_obmann',    label: 'Zielrichter-Obmann (ZRO)',  kuerzel: 'ZRO', gruppe: 'kampfgericht' },
+  { key: 'zeitmessanlage',        label: 'Bediener Zeitmessanlage',   kuerzel: 'ZMA', gruppe: 'kampfgericht' },
+  { key: 'orgaleiter',            label: 'Organisationsleiter',       kuerzel: 'OL',  gruppe: 'orga' },
+  { key: 'orgamitarbeiter',       label: 'Organisationsmitarbeiter',  kuerzel: 'OM',  gruppe: 'orga' },
+  { key: 'orgahelfer',            label: 'Organisationshelfer',       kuerzel: 'OH',  gruppe: 'orga' },
+  { key: 'laeufer_1',             label: 'Läufer – Stufe 1',     kuerzel: 'L1',  gruppe: 'orga', laeufer: true },
+  { key: 'laeufer_2',             label: 'Läufer – Stufe 2',     kuerzel: 'L2',  gruppe: 'orga', laeufer: true },
+  { key: 'laeufer_3',             label: 'Läufer – Stufe 3',     kuerzel: 'L3',  gruppe: 'orga', laeufer: true },
 ];
 
 export const ROLLE_BY_KEY = Object.fromEntries(ROLLEN.map(r => [r.key, r]));
 
+// Sachbearbeiter Meldeverfahren ist keine Abschnitts-Rolle, hat aber ein Kürzel für die Liste.
+export const KUERZEL_EXTRA = { sachbearbeiter: 'SB' };
+
 export function rollenLabel(key) {
   return ROLLE_BY_KEY[key]?.label || key || '–';
+}
+
+export function kuerzelFor(key) {
+  return ROLLE_BY_KEY[key]?.kuerzel || KUERZEL_EXTRA[key] || (key ? '?' : '–');
 }
 
 // Grund- / Maximalsatz je Abschnitt in Euro

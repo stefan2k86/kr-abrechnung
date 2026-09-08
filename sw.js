@@ -1,5 +1,5 @@
 // Service Worker: App-Shell + Bibliotheken offline verfügbar halten.
-const CACHE = 'kr-abrechnung-v5';
+const CACHE = 'kr-abrechnung-v6';
 const ASSETS = [
   './',
   './index.html',

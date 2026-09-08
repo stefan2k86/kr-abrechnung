@@ -20,6 +20,9 @@ inkl. Unterschrift auf dem Tablet.
 4. **Prüfen** – Beträge je Person mit Aufschlüsselung, Gesamtsumme, Warnungen.
 5. **Auszahlung** – je Person mit dem Finger/Stift auf dem Tablet unterschreiben.
 6. **Export** – Auszahlungsliste als PDF herunterladen; Projektdatei speichern.
+   Die Spalte „Abschnitt / Funktion / EUR" listet je Abschnitt das Funktions-**Kürzel**
+   (SCH, SR, ZN, L1, SB … siehe `js/rates.js`) und den Betrag dieses Abschnitts;
+   die Spalte „Betrag" ist die Gesamtsumme der Person.
 
 ## Rechenregeln (Kurzfassung)
 
