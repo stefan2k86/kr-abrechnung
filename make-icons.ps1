@@ -26,4 +26,18 @@ function Make-Icon([int]$size, [string]$outFile, [double]$pad) {
 Make-Icon 192 (Join-Path $assets "icon-192.png") 0.10
 Make-Icon 512 (Join-Path $assets "icon-512.png") 0.10
 Make-Icon 180 (Join-Path $assets "apple-touch-icon.png") 0.06
+
+# logo.png: verkleinerte Fassung mit transparentem Hintergrund fuer die Anzeige in der App
+$maxH = 200.0
+$s = [Math]::Min(1.0, $maxH / $img.Height)
+$lw = [int][Math]::Round($img.Width * $s); $lh = [int][Math]::Round($img.Height * $s)
+$lb = New-Object System.Drawing.Bitmap($lw, $lh, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+$lg = [System.Drawing.Graphics]::FromImage($lb)
+$lg.SmoothingMode = 'HighQuality'; $lg.InterpolationMode = 'HighQualityBicubic'; $lg.PixelOffsetMode = 'HighQuality'
+$lg.DrawImage($img, 0, 0, $lw, $lh)
+$lg.Dispose()
+$lb.Save((Join-Path $assets "logo.png"), [System.Drawing.Imaging.ImageFormat]::Png)
+$lb.Dispose()
+Write-Host "geschrieben: $(Join-Path $assets 'logo.png') ($lw x $lh)"
+
 $img.Dispose()

@@ -7,6 +7,8 @@ export function viewStart(host, { goto }) {
   const hatDaten = p.personen.length || p.abschnitte.length;
 
   host.append(
+    el('img', { src: 'assets/logo.png', alt: 'USV TU Dresden', width: 227, height: 200,
+      style: 'display:block;height:100px;width:auto;margin:.5rem auto 1rem' }),
     el('div', { class: 'panel stack' },
       el('h2', {}, 'Abrechnung starten'),
       el('p', { class: 'hint' },

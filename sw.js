@@ -1,10 +1,11 @@
 // Service Worker: App-Shell + Bibliotheken offline verfügbar halten.
-const CACHE = 'kr-abrechnung-v2';
+const CACHE = 'kr-abrechnung-v3';
 const ASSETS = [
   './',
   './index.html',
   './css/style.css',
   './manifest.webmanifest',
+  './assets/logo.png',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/apple-touch-icon.png',

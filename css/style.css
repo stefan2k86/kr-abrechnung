@@ -22,6 +22,7 @@ a{color:var(--accent)}
   display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;
   padding:.5rem .9rem;padding-top:max(.5rem,env(safe-area-inset-top));
 }
+.appbar-logo{height:34px;width:auto;background:#fff;border-radius:6px;padding:3px 6px;flex:0 0 auto}
 .appbar-title{font-weight:700;font-size:1.05rem;white-space:nowrap}
 .projektname{font-weight:400;opacity:.85;font-size:.9rem}
 .appbar-status{margin-left:auto;font-size:.8rem;opacity:.85;white-space:nowrap}
