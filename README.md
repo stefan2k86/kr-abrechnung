@@ -75,13 +75,17 @@ GitHub Pages verwenden. Mit vorhandenem Node/Python geht auch `npx serve .` bzw.
    git remote add origin https://github.com/<DEIN-NAME>/kr-abrechnung.git
    git push -u origin main
    ```
-3. Repo → **Settings → Pages** → Source „Deploy from a branch", Branch `main`, Ordner `/ (root)` → Save.
+3. Repo → **Settings → Pages** → Source „Deploy from a branch", Branch `master` (oder `main`,
+   je nachdem wie er heißt), Ordner `/ (root)` → Save.
 4. Nach ~1 Minute erreichbar unter `https://<DEIN-NAME>.github.io/kr-abrechnung/`.
    Auf dem Tablet als Lesezeichen / „Zum Startbildschirm hinzufügen".
 
 Nach einer Änderung: `git commit` + `git push` – Pages aktualisiert sich automatisch.
 Wenn eine neue Version nicht erscheint: Service-Worker-Cache-Version in `sw.js` hochzählen
-(`kr-abrechnung-v1` → `-v2`).
+(`kr-abrechnung-v2` → `-v3` …).
+
+App-Icons neu erzeugen (aus `assets/logo_usv_src.png`):
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\make-icons.ps1`
 
 ## Ordner
 
@@ -98,5 +102,7 @@ js/                    Anwendungscode (ES-Module)
   signature.js          Unterschrift-Canvas
   views/               Ansichten
 lib/                   pdf.js, pdf-lib (fest versioniert)
+assets/                App-Icons (icon-192/512, apple-touch-icon) + logo_usv_src.png (Quelle)
 beispiel/              Referenz-/Testdateien
+make-icons.ps1         erzeugt die Icons aus assets/logo_usv_src.png
 ```
