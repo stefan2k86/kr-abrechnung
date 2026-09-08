@@ -27,7 +27,9 @@ export const ROLLEN = [
   { key: 'orgamitarbeiter',       label: 'Organisationsmitarbeiter',       gruppe: 'orga' },
   { key: 'orgahelfer',            label: 'Organisationshelfer',            gruppe: 'orga' },
   { key: 'sachbearbeiter',        label: 'Sachbearbeiter Meldeverfahren',  gruppe: 'orga' },
-  { key: 'laeufer',               label: 'Läufer',                    gruppe: 'orga', laeufer: true },
+  { key: 'laeufer_1',             label: 'Läufer – Stufe 1',          gruppe: 'orga', laeufer: true },
+  { key: 'laeufer_2',             label: 'Läufer – Stufe 2',          gruppe: 'orga', laeufer: true },
+  { key: 'laeufer_3',             label: 'Läufer – Stufe 3',          gruppe: 'orga', laeufer: true },
 ];
 
 export const ROLLE_BY_KEY = Object.fromEntries(ROLLEN.map(r => [r.key, r]));
@@ -58,8 +60,17 @@ export function defaultSaetze() {
     zeitmessanlage: { ...s15 },
     orgamitarbeiter: { ...s15 },
     orgahelfer: { grund: 6, max: 7 },
-    laeuferProAbschnitt: 0, // vom Finanzwart je Wettkampf einzugeben
+    // Läufer: Stufe wählt der Finanzwart anhand einer externen Liste (Einsätze über die
+    // Lebenszeit des Läufers). Je Abschnitt Grund-/Maximalsatz nach der 120-min-Grenze,
+    // aber KEIN doppelter Grundsatz (siehe betragJeAbschnitt).
+    laeufer_1: { grund: 6, max: 7 },
+    laeufer_2: { grund: 8, max: 9 },
+    laeufer_3: { grund: 10, max: 11 },
   };
+}
+
+export function istLaeuferRolle(key) {
+  return !!ROLLE_BY_KEY[key]?.laeufer;
 }
 
 // Kernregel: Betrag EINES Abschnitts für eine dauer- und satzabhängige Rolle.
@@ -67,22 +78,23 @@ export function defaultSaetze() {
 //   121..180  -> 1x Maximalsatz
 //   181..260  -> 2x Grundsatz
 //   > 260     -> 3x Grundsatz
-export function betragJeAbschnitt(dauerMin, satz) {
+// keinDoppelsatz (Läufer): immer nur 1x – d<=120 Grundsatz, sonst Maximalsatz.
+export function betragJeAbschnitt(dauerMin, satz, { keinDoppelsatz = false } = {}) {
   const g = Number(satz?.grund) || 0;
   const m = Number(satz?.max) || 0;
   const d = Number(dauerMin) || 0;
   if (d <= 120) return g;
-  if (d <= 180) return m;
+  if (keinDoppelsatz || d <= 180) return m;
   if (d <= 260) return 2 * g;
   return 3 * g;
 }
 
 // Für Anzeige: welcher Faktor greift?
-export function faktorText(dauerMin) {
+export function faktorText(dauerMin, keinDoppelsatz = false) {
   const d = Number(dauerMin) || 0;
   if (d <= 0) return '–';
   if (d <= 120) return '1× Grundsatz';
-  if (d <= 180) return '1× Maximalsatz';
+  if (keinDoppelsatz || d <= 180) return '1× Maximalsatz';
   if (d <= 260) return '2× Grundsatz';
   return '3× Grundsatz';
 }

@@ -1,5 +1,5 @@
 // Berechnung: Dauer, Betrag je Person, Tage, Abschnittsliste, Validierung.
-import { betragJeAbschnitt, rollenLabel } from './rates.js';
+import { betragJeAbschnitt, rollenLabel, istLaeuferRolle } from './rates.js';
 
 export function parseHM(hm) {
   const m = /^(\d{1,2}):(\d{2})$/.exec((hm || '').trim());
@@ -34,13 +34,9 @@ export function personBetrag(person, project) {
   let sum = 0;
   for (const { e, ab } of aktiveEinsaetze(person, project)) {
     if (!e.rolleKey) continue;
-    if (e.rolleKey === 'laeufer') {
-      sum += Number(project.saetze.laeuferProAbschnitt) || 0;
-      continue;
-    }
     const satz = project.saetze[e.rolleKey];
     if (!satz) continue;
-    sum += betragJeAbschnitt(dauerMin(ab), satz);
+    sum += betragJeAbschnitt(dauerMin(ab), satz, { keinDoppelsatz: istLaeuferRolle(e.rolleKey) });
   }
   return Math.round(sum * 100) / 100;
 }
@@ -51,9 +47,8 @@ export function personAufstellung(person, project) {
     .sort((a, b) => (a.ab.nr || 0) - (b.ab.nr || 0))
     .map(({ e, ab }) => {
       const d = dauerMin(ab);
-      let betrag = 0;
-      if (e.rolleKey === 'laeufer') betrag = Number(project.saetze.laeuferProAbschnitt) || 0;
-      else if (e.rolleKey && project.saetze[e.rolleKey]) betrag = betragJeAbschnitt(d, project.saetze[e.rolleKey]);
+      const satz = e.rolleKey ? project.saetze[e.rolleKey] : null;
+      const betrag = satz ? betragJeAbschnitt(d, satz, { keinDoppelsatz: istLaeuferRolle(e.rolleKey) }) : 0;
       return { abschnittNr: ab.nr, dauerMin: d, rolleKey: e.rolleKey, rolleLabel: rollenLabel(e.rolleKey), betrag };
     });
 }
@@ -116,9 +111,12 @@ export function warnungen(project) {
   for (const [d, nrs] of Object.entries(proTag)) {
     if (nrs.length > 2) out.push({ level: 'warn', text: `${d}: ${nrs.length} Abschnitte – laut Regelwerk max. 2 pro Tag.` });
   }
-  if ((Number(project.saetze.laeuferProAbschnitt) || 0) === 0 &&
-      project.personen.some(p => (p.einsaetze || []).some(e => e.imEinsatz && e.rolleKey === 'laeufer'))) {
-    out.push({ level: 'warn', text: 'Läufer sind eingeteilt, aber der Läufersatz ist 0 €.' });
+  for (const rk of ['laeufer_1', 'laeufer_2', 'laeufer_3']) {
+    const s = project.saetze[rk] || {};
+    const genutzt = project.personen.some(p => (p.einsaetze || []).some(e => e.imEinsatz && e.rolleKey === rk));
+    if (genutzt && (!(Number(s.grund) > 0) || !(Number(s.max) > 0))) {
+      out.push({ level: 'warn', text: `${rollenLabel(rk)} ist eingeteilt, aber der Satz ist unvollständig (0 €).` });
+    }
   }
   for (const p of project.personen) {
     if (p.keinAnspruch) continue;

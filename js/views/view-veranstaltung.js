@@ -121,7 +121,7 @@ export function viewVeranstaltung(host) {
     el('th', { class: 'num' }, '≤120'), el('th', { class: 'num' }, '≤180'), el('th', { class: 'num' }, '≤260'), el('th', { class: 'num' }, '>260'))));
   const stb = el('tbody');
   for (const gk of Object.keys(GRUPPEN)) {
-    const rollen = ROLLEN.filter(r => r.gruppe === gk && !r.laeufer);
+    const rollen = ROLLEN.filter(r => r.gruppe === gk);
     if (!rollen.length) continue;
     stb.append(el('tr', {}, el('td', { colspan: 7, class: 'badge' }, GRUPPEN[gk])));
     for (const r of rollen) stb.append(satzRow(r));
@@ -131,35 +131,28 @@ export function viewVeranstaltung(host) {
   host.append(el('div', { class: 'panel stack' },
     el('h3', {}, 'Aufwandsentschädigungs-Sätze (je Abschnitt)'),
     el('div', { class: 'row' },
-      el('div', { class: 'grow' },
-        el('label', {}, 'Läufer – Betrag je Abschnitt (€)'),
-        el('input', {
-          type: 'number', min: '0', step: '0.5', value: s.laeuferProAbschnitt || 0,
-          oninput: (e) => store.patch(pp => { pp.saetze.laeuferProAbschnitt = parseFloat(e.target.value) || 0; }),
-        })),
       el('button', { class: 'ghost', onclick: () =>
-        confirmDialog('Alle Sätze auf die Standardwerte zurücksetzen? Der Läufersatz bleibt erhalten.',
-          () => store.update(pp => {
-            const laeufer = pp.saetze.laeuferProAbschnitt;
-            pp.saetze = defaultSaetze();
-            pp.saetze.laeuferProAbschnitt = laeufer;
-          }),
+        confirmDialog('Alle Sätze auf die Standardwerte zurücksetzen?',
+          () => store.update(pp => { pp.saetze = defaultSaetze(); }),
           { danger: false, jaText: 'Zurücksetzen' }) }, 'Standardsätze'),
     ),
     el('div', { class: 'tablewrap' }, satzTable),
     el('p', { class: 'hint' }, 'Die Zusatzspalten zeigen den resultierenden Betrag für eine Beispieldauer (≤120 / ≤180 / ≤260 / >260 min).'),
+    el('p', { class: 'hint' }, 'Läufer: die Stufe wählst du je Person (nach der Einsatz-Liste des Läufers). ' +
+      'Je Abschnitt zählt Grund- (≤120 min) bzw. Maximalsatz (>120 min) – ohne doppelten Grundsatz.'),
   ));
 
   function satzRow(r) {
     const satz = s[r.key] || { grund: 0, max: 0 };
+    const kd = !!r.laeufer;
     const cells = { c120: el('td', { class: 'num hint' }), c180: el('td', { class: 'num hint' }),
                     c260: el('td', { class: 'num hint' }), c300: el('td', { class: 'num hint' }) };
     const refresh = () => {
       const cur = store.getProject().saetze[r.key] || satz;
-      cells.c120.textContent = fmtEuro(betragJeAbschnitt(120, cur));
-      cells.c180.textContent = fmtEuro(betragJeAbschnitt(180, cur));
-      cells.c260.textContent = fmtEuro(betragJeAbschnitt(260, cur));
-      cells.c300.textContent = fmtEuro(betragJeAbschnitt(300, cur));
+      cells.c120.textContent = fmtEuro(betragJeAbschnitt(120, cur, { keinDoppelsatz: kd }));
+      cells.c180.textContent = fmtEuro(betragJeAbschnitt(180, cur, { keinDoppelsatz: kd }));
+      cells.c260.textContent = fmtEuro(betragJeAbschnitt(260, cur, { keinDoppelsatz: kd }));
+      cells.c300.textContent = fmtEuro(betragJeAbschnitt(300, cur, { keinDoppelsatz: kd }));
     };
     refresh();
     const num = (which) => el('input', {

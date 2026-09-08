@@ -83,9 +83,13 @@ function migrate(p) {
   p.schemaVersion = SCHEMA_VERSION;
   p.veranstaltung = { ...leeresProjekt().veranstaltung, ...(p.veranstaltung || {}) };
   p.saetze = { ...defaultSaetze(), ...(p.saetze || {}) };
+  delete p.saetze.laeuferProAbschnitt; // abgelöst durch die 3 Läufer-Stufen
   p.abschnitte = Array.isArray(p.abschnitte) ? p.abschnitte : [];
   p.personen = Array.isArray(p.personen) ? p.personen : [];
-  for (const pe of p.personen) pe.einsaetze = Array.isArray(pe.einsaetze) ? pe.einsaetze : [];
+  for (const pe of p.personen) {
+    pe.einsaetze = Array.isArray(pe.einsaetze) ? pe.einsaetze : [];
+    for (const e of pe.einsaetze) if (e.rolleKey === 'laeufer') e.rolleKey = 'laeufer_1'; // alte Einzel-Rolle
+  }
   return p;
 }
 
