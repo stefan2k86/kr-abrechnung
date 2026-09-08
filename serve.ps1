@@ -16,7 +16,8 @@ $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://localhost:$Port/")
 $listener.Start()
 Write-Host "KR-Abrechnung laeuft auf  http://localhost:$Port/"
-Write-Host "Beenden mit Strg+C"
+Write-Host "Dieses Fenster offen lassen. Beenden mit Strg+C oder Fenster schliessen."
+Start-Process "http://localhost:$Port/"
 try {
   while ($listener.IsListening) {
     $ctx = $listener.GetContext()

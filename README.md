@@ -47,17 +47,25 @@ Prüft Rechenkern und CSV-Parser gegen die Dateien in `beispiel/`.
 
 ## Lokal ausprobieren
 
-Wegen ES-Modulen und `fetch` muss die App über einen Webserver laufen (nicht per
-Doppelklick auf `index.html`). Ohne Zusatzinstallation unter Windows:
+Ein Doppelklick auf `index.html` funktioniert **nicht** (ES-Module brauchen einen
+Webserver). Unter Windows ohne Zusatzinstallation:
+
+**Doppelklick auf `Start.bat`** → ein schwarzes Fenster öffnet sich, der Browser
+geht automatisch auf `http://localhost:8777/`. Das Fenster offen lassen, solange du
+die App nutzt; zum Beenden schließen.
+
+Falls Windows beim ersten Mal warnt („Ausführung von Skripts …" oder SmartScreen):
+über *Weitere Informationen → Trotzdem ausführen* bzw. *Zulassen* bestätigen.
+
+Alternativ von Hand in PowerShell (im Projektordner):
 
 ```powershell
-.\serve.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\serve.ps1
 ```
 
-Dann im Browser `http://localhost:8777/` öffnen. (`serve.ps1` ist ein kleiner
-lokaler Server, nur zum Testen – für den echten Betrieb GitHub Pages verwenden.)
-
-Alternativ mit vorhandenem Node/Python: `npx serve .` bzw. `python -m http.server 8000`.
+`Start.bat` / `serve.ps1` sind nur für lokales Testen – für den echten Betrieb
+GitHub Pages verwenden. Mit vorhandenem Node/Python geht auch `npx serve .` bzw.
+`python -m http.server 8000`.
 
 ## Deploy auf GitHub Pages
 
