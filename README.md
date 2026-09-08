@@ -15,7 +15,8 @@ inkl. Unterschrift auf dem Tablet.
 2. **Veranstaltung** – Meldeergebnis-PDF einlesen (Abschnitte + Zeiten) und/oder Meldeliste-CSV.
    Alle Werte sind danach editierbar. Hier auch die Sätze prüfen (inkl. der 3 Läufer-Stufen).
 3. **Personen** – Meldeliste-CSV einlesen. Je Person und Abschnitt „im Einsatz" + **Rolle** wählen.
-   Orga/Läufer über „+ Person" ergänzen. Abgemeldete sind vorab abgehakt.
+   Orga/Läufer über „+ Person" ergänzen (Verein/Hinweis ist mit „USV TU Dresden" vorbelegt,
+   überschreibbar). Abgemeldete sind vorab abgehakt. Hier auch den **Sachbearbeiter Meldeverfahren** wählen.
 4. **Prüfen** – Beträge je Person mit Aufschlüsselung, Gesamtsumme, Warnungen.
 5. **Auszahlung** – je Person mit dem Finger/Stift auf dem Tablet unterschreiben.
 6. **Export** – Auszahlungsliste als PDF herunterladen; Projektdatei speichern.
@@ -34,6 +35,9 @@ Betrag je Abschnitt (Rolle mit Grundsatz **G** / Maximalsatz **M**), Dauer *d* =
 - Läufer: **3 Stufen** (die Stufe wählst du je Person nach der Einsatz-Liste des Läufers).
   Je Abschnitt = ein Einsatz: ≤ 120 min → Grundsatz, > 120 min → Maximalsatz der Stufe,
   **ohne** doppelten Grundsatz. Standard: Stufe 1 = 6/7 €, Stufe 2 = 8/9 €, Stufe 3 = 10/11 €.
+- **Sachbearbeiter Meldeverfahren:** genau eine Person je Wettkampf (Auswahl unter „Personen",
+  Dropdown mit den USV-TU-Dresden-Leuten). Bekommt **zusätzlich** zur eigentlichen Rolle
+  12 € je Abschnitt des Wettkampfs (Satz editierbar).
 - Betrag je Person = Summe über alle real besetzten Abschnitte. Rolle darf je Abschnitt wechseln.
 - „Tage" = Anzahl verschiedener Abschnitts-Datumswerte im Einsatz. Max. 2 Abschnitte/Tag.
 - Anspruch: Meldestatus „Bestätigt" **und** „im Einsatz". Abgemeldete/No-Shows raus.

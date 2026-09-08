@@ -31,7 +31,7 @@ export function viewPruefen(host) {
       el('div', { class: 'hint' },
         pe.keinAnspruch ? 'kein Anspruch' :
         (auf.length
-          ? auf.map(x => `Abschnitt ${x.abschnittNr}: ${x.rolleLabel}, ${x.dauerMin} min → ${fmtEuro(x.betrag)}`).join('  ·  ')
+          ? auf.map(x => x.text || `Abschnitt ${x.abschnittNr}: ${x.rolleLabel}, ${x.dauerMin} min → ${fmtEuro(x.betrag)}`).join('  ·  ')
           : 'keine aktiven Einsätze'))));
     const mainRow = el('tr', {},
       el('td', {}, personName(pe), pe.status === 'Abgemeldet' ? el('span', { class: 'badge warn', style: 'margin-left:.4rem' }, 'abgemeldet') : null),

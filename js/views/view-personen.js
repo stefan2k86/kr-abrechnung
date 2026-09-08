@@ -2,7 +2,9 @@ import { el, fileButton, confirmDialog, openModal } from '../dom.js';
 import * as store from '../state.js';
 import { parseMeldelisteFile } from '../import-csv.js';
 import { ROLLEN, GRUPPEN } from '../rates.js';
-import { personName, sortPersonen } from '../calc.js';
+import { personName, sortPersonen, fmtEuro } from '../calc.js';
+
+const istUsv = (verein) => /usv\s*tu\s*dresden/i.test(verein || '') || /\busv\b/i.test(verein || '');
 
 export function viewPersonen(host) {
   const p = store.getProject();
@@ -23,10 +25,40 @@ export function viewPersonen(host) {
       'CSV erneut einlesen ersetzt die CSV-Personen, manuell erfasste bleiben erhalten.'),
   ));
 
+  if (p.personen.length) host.append(sachbearbeiterPanel());
+
   if (!p.abschnitte.length) {
     host.append(el('div', { class: 'msg warn' },
       'Noch keine Abschnitte. Zuerst unter „Veranstaltung" das Meldeergebnis oder die CSV einlesen.'));
     return;
+  }
+
+  function sachbearbeiterPanel() {
+    const usv = sortPersonen(p.personen.filter(pe => istUsv(pe.verein)));
+    const auswahl = usv.length ? usv : sortPersonen(p.personen);
+    const satz = Number(p.saetze.sachbearbeiterProAbschnitt) || 0;
+    const sel = el('select', {
+      onchange: (e) => store.setSachbearbeiter(e.target.value || null),
+    },
+      el('option', { value: '' }, '— niemand —'),
+      ...auswahl.map(pe => el('option', { value: pe.id, selected: pe.id === p.sachbearbeiterPersonId },
+        `${personName(pe)}${pe.verein ? ' · ' + pe.verein : ''}`)),
+    );
+    return el('div', { class: 'panel stack' },
+      el('h3', {}, 'Sachbearbeiter Meldeverfahren'),
+      el('div', { class: 'row' },
+        el('div', { class: 'grow' }, el('label', {}, 'Person (USV TU Dresden)'), sel),
+        el('div', {}, el('label', {}, '€ je Abschnitt'),
+          el('input', {
+            type: 'number', min: '0', step: '0.5', value: satz, style: 'width:6rem',
+            oninput: (e) => store.patch(pp => { pp.saetze.sachbearbeiterProAbschnitt = parseFloat(e.target.value) || 0; }),
+          })),
+      ),
+      el('p', { class: 'hint' },
+        `Zusätzlich zur eigentlichen Rolle: ${fmtEuro(satz)} × ${p.abschnitte.length} Abschnitt(e) = ` +
+        `${fmtEuro(satz * p.abschnitte.length)} für die gewählte Person.` +
+        (usv.length ? '' : ' (Keine USV-Personen erkannt – es werden alle angezeigt.)')),
+    );
   }
 
   const rollenOptions = (selected) => {
@@ -138,10 +170,10 @@ export function viewPersonen(host) {
 
   function personModal() {
     openModal((box, close) => {
-      const f = {};
+      const f = { verein: 'USV TU Dresden' };
       const field = (key, label) => el('div', { class: 'grow' },
         el('label', {}, label),
-        el('input', { type: 'text', oninput: (e) => f[key] = e.target.value }));
+        el('input', { type: 'text', value: f[key] || '', oninput: (e) => f[key] = e.target.value }));
       box.append(
         el('h3', {}, 'Person hinzufügen'),
         el('div', { class: 'row' }, field('nachname', 'Nachname'), field('vorname', 'Vorname')),

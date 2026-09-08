@@ -26,7 +26,6 @@ export const ROLLEN = [
   { key: 'orgaleiter',            label: 'Organisationsleiter',            gruppe: 'orga' },
   { key: 'orgamitarbeiter',       label: 'Organisationsmitarbeiter',       gruppe: 'orga' },
   { key: 'orgahelfer',            label: 'Organisationshelfer',            gruppe: 'orga' },
-  { key: 'sachbearbeiter',        label: 'Sachbearbeiter Meldeverfahren',  gruppe: 'orga' },
   { key: 'laeufer_1',             label: 'Läufer – Stufe 1',          gruppe: 'orga', laeufer: true },
   { key: 'laeufer_2',             label: 'Läufer – Stufe 2',          gruppe: 'orga', laeufer: true },
   { key: 'laeufer_3',             label: 'Läufer – Stufe 3',          gruppe: 'orga', laeufer: true },
@@ -49,7 +48,6 @@ export function defaultSaetze() {
     protokoll: { ...s18 },
     auswerter: { ...s18 },
     orgaleiter: { ...s18 },
-    sachbearbeiter: { ...s18 }, // jpeg: 15/18 € (bzw. 12 €/Abschnitt) – bei Bedarf anpassen
     schwimmrichter: { ...s15 },
     zeitnehmer: { ...s15 },
     zeitnehmer_obmann: { ...s15 },
@@ -66,6 +64,9 @@ export function defaultSaetze() {
     laeufer_1: { grund: 6, max: 7 },
     laeufer_2: { grund: 8, max: 9 },
     laeufer_3: { grund: 10, max: 11 },
+    // Sachbearbeiter Meldeverfahren: 12 € je Abschnitt des Wettkampfs, ZUSÄTZLICH zur
+    // eigentlichen Rolle. Genau eine Person je Wettkampf (project.sachbearbeiterPersonId).
+    sachbearbeiterProAbschnitt: 12,
   };
 }
 

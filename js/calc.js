@@ -29,6 +29,14 @@ function aktiveEinsaetze(person, project) {
     .filter(x => x.ab);
 }
 
+// Zusatzvergütung „Sachbearbeiter Meldeverfahren": 12 € je Abschnitt des Wettkampfs,
+// für genau die eine benannte Person – zusätzlich zu ihrer eigentlichen Rolle.
+export function sachbearbeiterBonus(person, project) {
+  if (!person || !project.sachbearbeiterPersonId) return 0;
+  if (person.keinAnspruch || person.id !== project.sachbearbeiterPersonId) return 0;
+  return (Number(project.saetze.sachbearbeiterProAbschnitt) || 0) * (project.abschnitte?.length || 0);
+}
+
 export function personBetrag(person, project) {
   if (person.keinAnspruch) return 0;
   let sum = 0;
@@ -38,12 +46,13 @@ export function personBetrag(person, project) {
     if (!satz) continue;
     sum += betragJeAbschnitt(dauerMin(ab), satz, { keinDoppelsatz: istLaeuferRolle(e.rolleKey) });
   }
+  sum += sachbearbeiterBonus(person, project);
   return Math.round(sum * 100) / 100;
 }
 
 // Aufschlüsselung je Abschnitt für die Prüfansicht
 export function personAufstellung(person, project) {
-  return aktiveEinsaetze(person, project)
+  const zeilen = aktiveEinsaetze(person, project)
     .sort((a, b) => (a.ab.nr || 0) - (b.ab.nr || 0))
     .map(({ e, ab }) => {
       const d = dauerMin(ab);
@@ -51,6 +60,14 @@ export function personAufstellung(person, project) {
       const betrag = satz ? betragJeAbschnitt(d, satz, { keinDoppelsatz: istLaeuferRolle(e.rolleKey) }) : 0;
       return { abschnittNr: ab.nr, dauerMin: d, rolleKey: e.rolleKey, rolleLabel: rollenLabel(e.rolleKey), betrag };
     });
+  const bonus = sachbearbeiterBonus(person, project);
+  if (bonus) zeilen.push({
+    abschnittNr: null, dauerMin: 0, rolleKey: 'sachbearbeiter',
+    rolleLabel: 'Sachbearbeiter Meldeverfahren',
+    text: `Sachbearbeiter Meldeverfahren: ${project.abschnitte.length} Abschnitte × ${fmtEuro(project.saetze.sachbearbeiterProAbschnitt)} → ${fmtEuro(bonus)}`,
+    betrag: bonus,
+  });
+  return zeilen;
 }
 
 export function personTage(person, project) {
@@ -78,9 +95,10 @@ export function sortPersonen(personen) {
     personName(a).localeCompare(personName(b), 'de', { sensitivity: 'base' }));
 }
 
-// Kommt die Person auf die Auszahlungsliste? (Anspruch + mind. ein aktiver Einsatz)
+// Kommt die Person auf die Auszahlungsliste? (Anspruch + aktiver Einsatz ODER Sachbearbeiter)
 export function istAbzurechnen(person, project) {
   if (person.keinAnspruch) return false;
+  if (person.id === project.sachbearbeiterPersonId) return true;
   return (person.einsaetze || []).some(e =>
     e.imEinsatz && abschnittById(project, e.abschnittId));
 }
@@ -117,6 +135,13 @@ export function warnungen(project) {
     if (genutzt && (!(Number(s.grund) > 0) || !(Number(s.max) > 0))) {
       out.push({ level: 'warn', text: `${rollenLabel(rk)} ist eingeteilt, aber der Satz ist unvollständig (0 €).` });
     }
+  }
+  if (project.sachbearbeiterPersonId) {
+    const sb = project.personen.find(p => p.id === project.sachbearbeiterPersonId);
+    if (!sb) out.push({ level: 'warn', text: 'Sachbearbeiter Meldeverfahren: die gewählte Person ist nicht mehr in der Liste.' });
+    else if (sb.keinAnspruch) out.push({ level: 'warn', text: `Sachbearbeiter Meldeverfahren: ${personName(sb)} ist auf „kein Anspruch" gesetzt – die 12 €/Abschnitt fallen weg.` });
+    if (!(Number(project.saetze.sachbearbeiterProAbschnitt) > 0))
+      out.push({ level: 'warn', text: 'Sachbearbeiter Meldeverfahren ist gesetzt, aber der Satz ist 0 €.' });
   }
   for (const p of project.personen) {
     if (p.keinAnspruch) continue;

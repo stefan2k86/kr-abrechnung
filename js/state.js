@@ -20,6 +20,7 @@ export function leeresProjekt() {
     abschnitte: [],           // {id,nr,datum,wochentag,beginn,ende,quelle}
     saetze: defaultSaetze(),
     personen: [],             // s. addPersonFromCsv / addPersonManuell
+    sachbearbeiterPersonId: null, // Sachbearbeiter Meldeverfahren (+12 €/Abschnitt), 1 Person/Wettkampf
     notizen: '',
   };
 }
@@ -84,12 +85,17 @@ function migrate(p) {
   p.veranstaltung = { ...leeresProjekt().veranstaltung, ...(p.veranstaltung || {}) };
   p.saetze = { ...defaultSaetze(), ...(p.saetze || {}) };
   delete p.saetze.laeuferProAbschnitt; // abgelöst durch die 3 Läufer-Stufen
+  delete p.saetze.sachbearbeiter;      // ist jetzt Zusatzfunktion, keine Rolle mehr
   p.abschnitte = Array.isArray(p.abschnitte) ? p.abschnitte : [];
   p.personen = Array.isArray(p.personen) ? p.personen : [];
   for (const pe of p.personen) {
     pe.einsaetze = Array.isArray(pe.einsaetze) ? pe.einsaetze : [];
-    for (const e of pe.einsaetze) if (e.rolleKey === 'laeufer') e.rolleKey = 'laeufer_1'; // alte Einzel-Rolle
+    for (const e of pe.einsaetze) {
+      if (e.rolleKey === 'laeufer') e.rolleKey = 'laeufer_1';   // alte Einzel-Rolle
+      if (e.rolleKey === 'sachbearbeiter') e.rolleKey = null;    // ist keine Abschnitts-Rolle mehr
+    }
   }
+  if (!p.personen.some(pe => pe.id === p.sachbearbeiterPersonId)) p.sachbearbeiterPersonId = null;
   return p;
 }
 
@@ -167,6 +173,7 @@ export function applyMeldeliste(parsed) {
       }
       p.personen.push(pe);
     }
+    if (!p.personen.some(pe => pe.id === p.sachbearbeiterPersonId)) p.sachbearbeiterPersonId = null;
   });
 }
 
@@ -207,7 +214,15 @@ export function personManuellHinzufuegen({ nachname, vorname, zusatz, verein }) 
 }
 
 export function personLoeschen(id) {
-  update(p => { p.personen = p.personen.filter(x => x.id !== id); });
+  update(p => {
+    p.personen = p.personen.filter(x => x.id !== id);
+    if (p.sachbearbeiterPersonId === id) p.sachbearbeiterPersonId = null;
+  });
+}
+
+// Sachbearbeiter Meldeverfahren festlegen (Person-Id oder null)
+export function setSachbearbeiter(personId) {
+  update(p => { p.sachbearbeiterPersonId = personId || null; });
 }
 
 // Einsatz einer Person in einem Abschnitt hinzufügen / entfernen

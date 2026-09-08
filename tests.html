@@ -15,7 +15,7 @@
 <script type="module">
 import { betragJeAbschnitt, defaultSaetze } from './js/rates.js';
 import { parseMeldelisteText, splitName } from './js/import-csv.js';
-import { personBetrag, personTage, dauerMin } from './js/calc.js';
+import { personBetrag, personTage, dauerMin, istAbzurechnen } from './js/calc.js';
 
 const out = document.getElementById('out');
 let pass = 0, fail = 0;
@@ -80,6 +80,30 @@ ok('Läufer Stufe 3 gemischt = 21 €', personBetrag({ einsaetze: [
   { abschnittId: 'm1', rolleKey: 'laeufer_3', imEinsatz: true },
   { abschnittId: 'm2', rolleKey: 'laeufer_3', imEinsatz: true },
 ] }, lpMix));
+
+// ---- Sachbearbeiter Meldeverfahren: +12 € je Abschnitt, zusätzlich zur Rolle ----
+group('Sachbearbeiter Meldeverfahren (+12 €/Abschnitt, zusätzlich)');
+const sbProj = {
+  saetze: defaultSaetze(),
+  sachbearbeiterPersonId: 'pB',
+  abschnitte: [
+    { id: 'q1', nr: 1, beginn: '09:00', ende: '11:00' },   // 120 → Grundsatz
+    { id: 'q2', nr: 2, beginn: '09:00', ende: '13:00' },    // 240 → 2×Grundsatz (KR)
+  ],
+  personen: [
+    { id: 'pA', einsaetze: [ { abschnittId: 'q1', rolleKey: 'schwimmrichter', imEinsatz: true } ] },
+    { id: 'pB', einsaetze: [ { abschnittId: 'q1', rolleKey: 'zeitnehmer', imEinsatz: true } ] },
+  ],
+};
+ok('Satz Sachbearbeiter = 12 €/Abschnitt', sbProj.saetze.sachbearbeiterProAbschnitt === 12, sbProj.saetze.sachbearbeiterProAbschnitt);
+// pA (kein Sachbearbeiter): nur Schwimmrichter q1 120min → 12 €
+ok('Person A ohne Sachbearbeiter = 12 €', personBetrag(sbProj.personen[0], sbProj) === 12, personBetrag(sbProj.personen[0], sbProj));
+// pB: Zeitnehmer q1 120min (12 €) + Sachbearbeiter-Bonus 2 Abschnitte × 12 = 24 → 36 €
+ok('Person B mit Sachbearbeiter = 36 € (12 + 2×12)', personBetrag(sbProj.personen[1], sbProj) === 36, personBetrag(sbProj.personen[1], sbProj));
+// Sachbearbeiter ohne eigene Einsätze steht trotzdem auf der Liste
+const sbOnly = { saetze: defaultSaetze(), sachbearbeiterPersonId: 'x', abschnitte: [{id:'a',nr:1,beginn:'09:00',ende:'11:00'},{id:'b',nr:2,beginn:'09:00',ende:'11:00'}], personen: [{ id:'x', einsaetze: [] }] };
+ok('Sachbearbeiter ohne Einsätze: abzurechnen', istAbzurechnen(sbOnly.personen[0], sbOnly) === true, null);
+ok('Sachbearbeiter ohne Einsätze: 24 €', personBetrag(sbOnly.personen[0], sbOnly) === 24, personBetrag(sbOnly.personen[0], sbOnly));
 
 // ---- Stefans Rechenbeispiel: 200 min + 178 min für einen Kampfrichter → 39 € ----
 group("Rechenbeispiel: Kampfrichter, Abschnitt 200 min + 178 min");
