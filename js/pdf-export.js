@@ -45,6 +45,11 @@ export async function erzeugeAuszahlungslistePdf(project) {
       try { sigCache.set(url, await doc.embedPng(url)); } catch (_) { sigCache.set(url, null); }
     }
   }
+  let prueferSig = null;
+  const prueferUrl = project.pruefer?.unterschrift?.pngDataUrl;
+  if (prueferUrl) {
+    try { prueferSig = await doc.embedPng(prueferUrl); } catch (_) { prueferSig = null; }
+  }
 
   const A4 = [595.28, 841.89];
   const M = { l: 36, r: 36, t: 44, b: 40 };
@@ -64,7 +69,8 @@ export async function erzeugeAuszahlungslistePdf(project) {
   const personen = abzurechnendePersonen(project);
   const summe = personen.reduce((s, p) => s + personBetrag(p, project), 0);
   const erstellt = new Date();
-  const stamp = `${deDate(erstellt.toISOString().slice(0,10))} ${erstellt.toTimeString().slice(0,5)}`;
+  const datumStr = deDate(erstellt.toISOString().slice(0,10));
+  const stamp = `${datumStr} ${erstellt.toTimeString().slice(0,5)}`;
 
   let page, y, seite = 0;
   const pages = [];
@@ -113,9 +119,8 @@ export async function erzeugeAuszahlungslistePdf(project) {
 
   function fusszeile() {
     const fy = M.b - 6;
-    text(`${stamp}  Auszahlungsliste`, M.l, fy + 8, 7);
-    text('LSV Sachsen', A4[0] / 2 - 40, fy + 8, 7);
-    if (v.schiedsrichter) text(v.schiedsrichter, A4[0] / 2 - 40, fy - 1, 7);
+    text(datumStr, M.l, fy + 8, 7);
+    text('USV TU Dresden e.V.', A4[0] / 2 - 48, fy + 8, 7);
     textR(`Seite ${seite}`, right, fy + 8, 7);
   }
 
@@ -182,13 +187,19 @@ export async function erzeugeAuszahlungslistePdf(project) {
   // Leerzeilen bis kurz vor Seitenende
   while (y - ROW_MIN > M.b + 70) zeile(lfd++, null);
 
-  // Unterschriftsblock unten
-  y -= 16;
-  text('__________________, den __________', M.l, y, 9);
-  text('Für die Richtigkeit', col.sig.x - 40, y, 9);
-  y -= 26;
-  text('Kampfrichterobmann', M.l, y, 9);
-  text('Schiedsrichter', col.sig.x - 40, y, 9);
+  // Gegenzeichnung durch die verantwortliche Person
+  y -= 30;
+  const prName = (project.pruefer?.name || '').trim();
+  const sx = right - 200;
+  if (prueferSig) {
+    const maxW = 196, maxH = 28;
+    const sc = Math.min(maxW / prueferSig.width, maxH / prueferSig.height);
+    page.drawImage(prueferSig, { x: sx, y: y + 3, width: prueferSig.width * sc, height: prueferSig.height * sc });
+  }
+  line(sx, y, right, y);
+  text(`den ${datumStr}`, M.l, y - 10, 9);
+  text('geprüft / verantwortliche Person', sx, y - 10, 8);
+  if (prName) text(prName, sx, y - 20, 8.5, fontB);
 
   fusszeile();
 

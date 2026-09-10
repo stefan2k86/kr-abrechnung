@@ -13,13 +13,16 @@ inkl. Unterschrift auf dem Tablet.
 
 1. **Start** – neue Abrechnung beginnen oder Projektdatei laden.
 2. **Veranstaltung** – Meldeergebnis-PDF einlesen (Abschnitte + Zeiten) und/oder Meldeliste-CSV.
-   Alle Werte sind danach editierbar. Hier auch die Sätze prüfen (inkl. der 3 Läufer-Stufen).
+   Alle Werte sind danach editierbar. Hier auch die Sätze prüfen (inkl. der 3 Läufer-Stufen)
+   und die **verantwortliche Person** („Geprüft durch") eintragen.
 3. **Personen** – Meldeliste-CSV einlesen. Je Person und Abschnitt „im Einsatz" + **Rolle** wählen.
    Orga/Läufer über „+ Person" ergänzen (Verein/Hinweis ist mit „USV TU Dresden" vorbelegt,
    überschreibbar). Abgemeldete sind vorab abgehakt. Hier auch den **Sachbearbeiter Meldeverfahren** wählen.
 4. **Prüfen** – Beträge je Person mit Aufschlüsselung, Gesamtsumme, Warnungen.
 5. **Auszahlung** – je Person mit dem Finger/Stift auf dem Tablet unterschreiben.
 6. **Export** – Auszahlungsliste als PDF herunterladen; Projektdatei speichern.
+   Vor dem Erzeugen des PDF zeichnet die verantwortliche Person die Prüfung digital
+   gegen (einmalig; die Unterschrift bleibt im Projekt und erscheint unten auf der Liste).
    Die Spalte „Abschnitt / Funktion / EUR" listet je Abschnitt das Funktions-**Kürzel**
    (SCH, SR, ZN, L1, SB … siehe `js/rates.js`) und den Betrag dieses Abschnitts;
    die Spalte „Betrag" ist die Gesamtsumme der Person.

@@ -48,6 +48,12 @@ export function viewVeranstaltung(host) {
       type, value: v[key] || '',
       oninput: (e) => store.patch(pp => { pp.veranstaltung[key] = e.target.value; }),
     }));
+  const prueferFeld = el('div', { class: 'grow' },
+    el('label', {}, 'Geprüft durch (verantwortliche Person)'),
+    el('input', {
+      type: 'text', value: p.pruefer?.name || '',
+      oninput: (e) => store.patch(pp => { pp.pruefer.name = e.target.value; }),
+    }));
   host.append(el('div', { class: 'panel stack' },
     el('h3', {}, 'Veranstaltungsdaten (für die PDF-Kopfzeile)'),
     el('div', { class: 'row' }, feld('name', 'Name der Veranstaltung')),
@@ -56,8 +62,10 @@ export function viewVeranstaltung(host) {
       feld('ort', 'Ort / Wettkampfstätte')),
     el('div', { class: 'row' },
       feld('datumVon', 'Einsatz von', 'date'),
-      feld('datumBis', 'bis', 'date'),
-      feld('schiedsrichter', 'Schiedsrichter (Fußzeile)')),
+      feld('datumBis', 'bis', 'date')),
+    el('div', { class: 'row' }, prueferFeld),
+    el('p', { class: 'hint' },
+      'Die verantwortliche Person zeichnet die Liste vor dem PDF-Export im Tab „Export" digital gegen.'),
   ));
 
   // ---- Abschnitte ----

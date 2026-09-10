@@ -15,12 +15,13 @@ export function leeresProjekt() {
     erstellt: new Date().toISOString(),
     veranstaltung: {
       name: '', ausrichter: '', ort: '',
-      datumVon: '', datumBis: '', schiedsrichter: '',
+      datumVon: '', datumBis: '',
     },
     abschnitte: [],           // {id,nr,datum,wochentag,beginn,ende,quelle}
     saetze: defaultSaetze(),
     personen: [],             // s. addPersonFromCsv / addPersonManuell
     sachbearbeiterPersonId: null, // Sachbearbeiter Meldeverfahren (+12 €/Abschnitt), 1 Person/Wettkampf
+    pruefer: { name: '', unterschrift: null }, // verantwortliche Person: zeichnet die Liste vor dem PDF-Export gegen
     notizen: '',
   };
 }
@@ -83,6 +84,8 @@ function migrate(p) {
   if (!p || typeof p !== 'object') return leeresProjekt();
   p.schemaVersion = SCHEMA_VERSION;
   p.veranstaltung = { ...leeresProjekt().veranstaltung, ...(p.veranstaltung || {}) };
+  delete p.veranstaltung.schiedsrichter; // Fußzeile: nur noch "USV TU Dresden e.V." + Datum
+  p.pruefer = { name: '', unterschrift: null, ...(p.pruefer || {}) };
   p.saetze = { ...defaultSaetze(), ...(p.saetze || {}) };
   delete p.saetze.laeuferProAbschnitt; // abgelöst durch die 3 Läufer-Stufen
   delete p.saetze.sachbearbeiter;      // ist jetzt Zusatzfunktion, keine Rolle mehr
