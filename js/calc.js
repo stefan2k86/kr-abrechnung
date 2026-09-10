@@ -132,11 +132,16 @@ export function warnungen(project) {
   for (const [d, nrs] of Object.entries(proTag)) {
     if (nrs.length > 2) out.push({ level: 'warn', text: `${d}: ${nrs.length} Abschnitte – laut Regelwerk max. 2 pro Tag.` });
   }
-  for (const rk of ['laeufer_1', 'laeufer_2', 'laeufer_3']) {
+  // Eingeteilte Rollen ohne vollständigen Satz -> Beträge werden 0
+  const genutzteRollen = new Set();
+  for (const p of project.personen) {
+    if (p.keinAnspruch) continue;
+    for (const e of (p.einsaetze || [])) if (e.imEinsatz && e.rolleKey) genutzteRollen.add(e.rolleKey);
+  }
+  for (const rk of genutzteRollen) {
     const s = project.saetze[rk] || {};
-    const genutzt = project.personen.some(p => (p.einsaetze || []).some(e => e.imEinsatz && e.rolleKey === rk));
-    if (genutzt && (!(Number(s.grund) > 0) || !(Number(s.max) > 0))) {
-      out.push({ level: 'warn', text: `${rollenLabel(rk)} ist eingeteilt, aber der Satz ist unvollständig (0 €).` });
+    if (!(Number(s.grund) > 0) || !(Number(s.max) > 0)) {
+      out.push({ level: 'warn', text: `${rollenLabel(rk)} ist eingeteilt, aber der Satz ist unvollständig (Grund- oder Maximalsatz 0 €).` });
     }
   }
   if (project.sachbearbeiterPersonId) {
@@ -154,5 +159,25 @@ export function warnungen(project) {
     if (p.quelle === 'csv' && p.status === 'Abgemeldet' && aktiv.length)
       out.push({ level: 'warn', text: `${personName(p)}: in der Meldeliste abgemeldet, hier aber als "im Einsatz" markiert.` });
   }
+  // Leere Werte, die erst im PDF auffallen würden
+  for (const p of abzurechnendePersonen(project)) {
+    if (personBetrag(p, project) > 0) continue;
+    out.push({ level: 'err', text: `${personName(p)}: Betrag 0,00 € – Rolle oder Abschnittszeiten fehlen.` });
+  }
+  const v = project.veranstaltung || {};
+  const fehlendeKopfdaten = [
+    ['name', 'Name der Veranstaltung'],
+    ['ausrichter', 'Ausrichtender Verein'],
+    ['datumVon', 'Einsatz von'],
+    ['datumBis', 'Einsatz bis'],
+  ].filter(([k]) => !String(v[k] || '').trim()).map(([, label]) => label);
+  if (fehlendeKopfdaten.length)
+    out.push({ level: 'warn', text: `Veranstaltungsdaten fehlen: ${fehlendeKopfdaten.join(', ')} – bleibt im PDF-Kopf leer.` });
+  if (!String(project.pruefer?.name || '').trim())
+    out.push({ level: 'warn', text: 'Verantwortliche Person („Geprüft durch") ist nicht eingetragen.' });
   return out;
+}
+
+export function hatFehler(warns) {
+  return (warns || []).some(w => w.level === 'err');
 }

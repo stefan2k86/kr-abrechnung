@@ -22,7 +22,12 @@ inkl. Unterschrift auf dem Tablet.
 5. **Auszahlung** – je Person mit dem Finger/Stift auf dem Tablet unterschreiben.
 6. **Export** – Auszahlungsliste als PDF herunterladen; Projektdatei speichern.
    Vor dem Erzeugen des PDF zeichnet die verantwortliche Person die Prüfung digital
-   gegen (einmalig; die Unterschrift bleibt im Projekt und erscheint unten auf der Liste).
+   gegen (die Unterschrift bleibt im Projekt und erscheint unten auf der Liste).
+   Der Gegenzeichnungs-Dialog zeigt zuerst die **Prüfung** (Fehler/Warnungen, u. a.
+   Personen mit 0 €, Rollen ohne Satz, leere Kopfdaten) und eine **Vorschau** der
+   Liste. Bei Fehlern ist die Unterschrift erst nach ausdrücklicher Bestätigung
+   möglich; entstehen nach dem Unterschreiben neue Fehler, geht der Export erneut
+   durch die Prüfung.
    Die Spalte „Abschnitt / Funktion / EUR" listet je Abschnitt das Funktions-**Kürzel**
    (SCH, SR, ZN, L1, SB … siehe `js/rates.js`) und den Betrag dieses Abschnitts;
    die Spalte „Betrag" ist die Gesamtsumme der Person.
@@ -103,7 +108,7 @@ App-Icons neu erzeugen (aus `assets/logo_usv_src.png`):
 
 ```
 index.html            App-Shell
-css/style.css          Tablet-first Styling
+css/style.css          Tablet-first Styling in USV-Optik
 js/                    Anwendungscode (ES-Module)
   rates.js             Rollen + Default-Sätze + Kernregel betragJeAbschnitt()
   calc.js              Beträge, Tage, Validierung
@@ -112,9 +117,10 @@ js/                    Anwendungscode (ES-Module)
   import-meldeergebnis.js  Parser Meldeergebnis-PDF (pdf.js)
   pdf-export.js         Auszahlungsliste-PDF (pdf-lib)
   signature.js          Unterschrift-Canvas
-  views/               Ansichten
+  views/               Ansichten + personen-tabelle.js (Prüf-/Vorschau-Tabelle, geteilt)
 lib/                   pdf.js, pdf-lib (fest versioniert)
 assets/                App-Icons (icon-192/512, apple-touch-icon) + logo_usv_src.png (Quelle)
+assets/fonts/          Roboto / Roboto Slab als woff2 (selbst gehostet, offline)
 beispiel/              Referenz-/Testdateien
 make-icons.ps1         erzeugt die Icons aus assets/logo_usv_src.png
 ```

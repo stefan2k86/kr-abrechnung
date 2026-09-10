@@ -1,10 +1,14 @@
 // Service Worker: App-Shell + Bibliotheken offline verfügbar halten.
-const CACHE = 'kr-abrechnung-v7';
+const CACHE = 'kr-abrechnung-v8';
 const ASSETS = [
   './',
   './index.html',
   './css/style.css',
   './manifest.webmanifest',
+  './assets/fonts/roboto-latin.woff2',
+  './assets/fonts/roboto-latin-ext.woff2',
+  './assets/fonts/robotoslab-latin.woff2',
+  './assets/fonts/robotoslab-latin-ext.woff2',
   './assets/logo.png',
   './assets/icon-192.png',
   './assets/icon-512.png',
@@ -18,6 +22,7 @@ const ASSETS = [
   './js/import-meldeergebnis.js',
   './js/signature.js',
   './js/pdf-export.js',
+  './js/views/personen-tabelle.js',
   './js/views/view-start.js',
   './js/views/view-veranstaltung.js',
   './js/views/view-personen.js',

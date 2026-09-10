@@ -22,7 +22,8 @@ Tablet-Unterschrift. Vollständige Beschreibung: `README.md`.
 
 ```
 index.html               App-Shell, lädt js/app.js (ES-Modul)
-css/style.css             Styling, CSS-Variablen in :root (--accent #1f5c8b)
+css/style.css             Styling in USV-Optik, CSS-Variablen in :root (--green-dark #017634)
+assets/fonts/             Roboto / Roboto Slab (woff2, selbst gehostet)
 js/
   app.js                 Bootstrap, Navigation (6 Views), Autosave-Anbindung
   dom.js                 el() / clear() — Mini-DOM-Helfer, überall genutzt
@@ -66,10 +67,10 @@ Erscheint die neue Version nicht: Cache-Version in `sw.js` hochzählen
 
 ## Gerade in Arbeit
 
-`entwurf/` (noch nicht committet) — **optischer Redesign-Entwurf** an die
-USV-Vereinsoptik (`design-preview.html`, selbst gehostete Roboto/Roboto-Slab-Fonts).
-Umsetzungsschritte in `entwurf/README.md`; Screens/JS/Bedienung bleiben unverändert.
-Solange nicht freigegeben: `css/style.css` nicht umstellen.
+Nichts Offenes. Die USV-Optik ist umgesetzt (`css/style.css`, `assets/fonts/`,
+`.topbar`/`.navband` in `index.html`). `entwurf/` liegt weiter als Farb-/Baustein-
+Referenz auf Stefans Rechner, ist aber **nicht im Repo** — Stil-Änderungen also
+direkt in `css/style.css`.
 
 ## Aufgabenverwaltung
 
