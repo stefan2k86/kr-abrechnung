@@ -68,9 +68,10 @@ Erscheint die neue Version nicht: Cache-Version in `sw.js` hochzählen
 ## Gerade in Arbeit
 
 Nichts Offenes. Die USV-Optik ist umgesetzt (`css/style.css`, `assets/fonts/`,
-`.topbar`/`.navband` in `index.html`). `entwurf/` liegt weiter als Farb-/Baustein-
-Referenz auf Stefans Rechner, ist aber **nicht im Repo** — Stil-Änderungen also
-direkt in `css/style.css`.
+`.topbar`/`.navband` in `index.html`). `entwurf/design-preview.html` liegt im Repo
+als Farb-/Baustein-Referenz — maßgeblich ist aber `css/style.css`; die Preview
+ist eine Momentaufnahme und wird nicht mitgepflegt. `entwurf/fonts/` ist per
+`.gitignore` ausgeschlossen (Dublette von `assets/fonts/`).
 
 ## Aufgabenverwaltung
 
