@@ -4,6 +4,7 @@ Thumbs.db
 node_modules/
 .vscode/
 .~lock.*
+.worktrees/
 # Dublette: die Schriften liegen im Repo unter assets/fonts/, die Preview
 # bettet sie ohnehin als data:-URI ein.
 entwurf/fonts/
