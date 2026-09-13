@@ -27,7 +27,7 @@ export function leeresProjekt() {
 }
 
 let idCounter = 1;
-const uid = (p) => `${p}${Date.now().toString(36)}${(idCounter++).toString(36)}`;
+export const uid = (p) => `${p}${Date.now().toString(36)}${(idCounter++).toString(36)}`;
 
 // ---- Store ------------------------------------------------------------
 export function getProject() { return project; }
