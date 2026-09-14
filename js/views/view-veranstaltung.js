@@ -92,7 +92,26 @@ export function viewVeranstaltung(host) {
       const cur = store.getProject().abschnitte.find(z => z.id === a.id) || a;
       const d = dauerMin(cur);
       dauerCell.textContent = d ? `${d} min` : '–';
-      faktorCell.textContent = faktorText(d);
+      // Check if any pauschale roles are used in this section by any person
+      const proj = store.getProject();
+      const roleKeysInSection = new Set();
+      for (const person of proj.personen) {
+        for (const e of (person.einsaetze || [])) {
+          if (e.imEinsatz && e.abschnittId === a.id && e.rolleKey) {
+            roleKeysInSection.add(e.rolleKey);
+          }
+        }
+      }
+      let faktorText_result = faktorText(d);
+      // If any pauschale role is used, show "Pauschale"; otherwise show duration-based factor
+      for (const rk of roleKeysInSection) {
+        const satz = proj.saetze[rk];
+        if (Number(satz?.pauschale) > 0) {
+          faktorText_result = faktorText(d, false, satz);
+          break;
+        }
+      }
+      faktorCell.textContent = faktorText_result;
     };
     refresh();
 
