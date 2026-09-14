@@ -1,5 +1,6 @@
 import { el } from '../dom.js';
 import * as store from '../state.js';
+import * as archiv from '../archiv.js';
 import { confirmDialog } from '../dom.js';
 
 export function viewStart(host, { goto }) {
@@ -18,10 +19,13 @@ export function viewStart(host, { goto }) {
       el('div', { class: 'row' },
         el('button', {
           onclick: () => {
+            // Annahme: nur eine tatsächlich befüllte Abrechnung (hatDaten) wird
+            // archiviert — eine leere/unbenutzte Abrechnung erzeugt keinen
+            // Archiveintrag (siehe Spec/Task 3 der Archiv-Karte).
             if (hatDaten) confirmDialog(
-              'Aktuelle Abrechnung verwerfen und neu beginnen?',
-              () => { store.verwerfeAutosave(); store.neuesProjekt(); goto('veranstaltung'); },
-              { danger: true, jaText: 'Neu beginnen' });
+              'Aktuelle Abrechnung archivieren und neu beginnen?',
+              () => { archiv.archiviere(p); store.verwerfeAutosave(); store.neuesProjekt(); goto('veranstaltung'); },
+              { danger: false, jaText: 'Neu beginnen' });
             else { store.neuesProjekt(); goto('veranstaltung'); }
           },
         }, 'Neue Abrechnung'),
@@ -44,6 +48,27 @@ export function viewStart(host, { goto }) {
         el('div', { class: 'row' },
           el('button', { class: 'secondary', onclick: () => goto('personen') }, 'Weiter bearbeiten'),
         ),
+      ),
+    );
+  }
+
+  const archivListe = archiv.listeArchiv();
+  if (archivListe.length) {
+    host.append(
+      el('div', { class: 'panel stack' },
+        el('h3', {}, 'Archiv'),
+        ...archivListe.map(eintrag => el('div', {
+          class: 'row', style: 'justify-content:space-between;align-items:center',
+        },
+          el('div', {},
+            el('p', {}, el('strong', {}, eintrag.veranstaltungName || '(ohne Namen)')),
+            el('p', { class: 'hint' }, `${eintrag.datumVon || '?'} – ${eintrag.datumBis || '?'}`),
+          ),
+          el('button', {
+            class: 'secondary',
+            onclick: () => { store.setProject(archiv.ladeAusArchiv(eintrag.id)); goto('personen'); },
+          }, 'Laden'),
+        )),
       ),
     );
   }
