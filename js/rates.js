@@ -30,6 +30,8 @@ export const ROLLEN = [
   { key: 'laeufer_1',             label: 'Läufer – Stufe 1',     kuerzel: 'L1',  gruppe: 'orga', laeufer: true },
   { key: 'laeufer_2',             label: 'Läufer – Stufe 2',     kuerzel: 'L2',  gruppe: 'orga', laeufer: true },
   { key: 'laeufer_3',             label: 'Läufer – Stufe 3',     kuerzel: 'L3',  gruppe: 'orga', laeufer: true },
+  { key: 'imbissleiter',          label: 'Imbissleiter',         kuerzel: 'IL',  gruppe: 'orga' },
+  { key: 'imbisshelfer',          label: 'Imbisshelfer',         kuerzel: 'IH',  gruppe: 'orga' },
 ];
 
 export const ROLLE_BY_KEY = Object.fromEntries(ROLLEN.map(r => [r.key, r]));
@@ -72,6 +74,8 @@ export function defaultSaetze() {
     laeufer_1: { grund: 6, max: 7 },
     laeufer_2: { grund: 8, max: 9 },
     laeufer_3: { grund: 10, max: 11 },
+    imbissleiter: { pauschale: 20 },
+    imbisshelfer: { pauschale: 15 },
     // Sachbearbeiter Meldeverfahren: 12 € je Abschnitt des Wettkampfs, ZUSÄTZLICH zur
     // eigentlichen Rolle. Genau eine Person je Wettkampf (project.sachbearbeiterPersonId).
     sachbearbeiterProAbschnitt: 12,
@@ -88,7 +92,9 @@ export function istLaeuferRolle(key) {
 //   181..260  -> 2x Grundsatz
 //   > 260     -> 3x Grundsatz
 // keinDoppelsatz (Läufer): immer nur 1x – d<=120 Grundsatz, sonst Maximalsatz.
+// pauschale: fester Betrag unabhängig von der Dauer.
 export function betragJeAbschnitt(dauerMin, satz, { keinDoppelsatz = false } = {}) {
+  if (Number(satz?.pauschale) > 0) return Number(satz.pauschale);
   const g = Number(satz?.grund) || 0;
   const m = Number(satz?.max) || 0;
   const d = Number(dauerMin) || 0;
@@ -99,7 +105,8 @@ export function betragJeAbschnitt(dauerMin, satz, { keinDoppelsatz = false } = {
 }
 
 // Für Anzeige: welcher Faktor greift?
-export function faktorText(dauerMin, keinDoppelsatz = false) {
+export function faktorText(dauerMin, keinDoppelsatz = false, satz = null) {
+  if (Number(satz?.pauschale) > 0) return 'Pauschale';
   const d = Number(dauerMin) || 0;
   if (d <= 0) return '–';
   if (d <= 120) return '1× Grundsatz';

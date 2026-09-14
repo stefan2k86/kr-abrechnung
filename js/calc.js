@@ -140,8 +140,10 @@ export function warnungen(project) {
   }
   for (const rk of genutzteRollen) {
     const s = project.saetze[rk] || {};
-    if (!(Number(s.grund) > 0) || !(Number(s.max) > 0)) {
-      out.push({ level: 'warn', text: `${rollenLabel(rk)} ist eingeteilt, aber der Satz ist unvollständig (Grund- oder Maximalsatz 0 €).` });
+    const hasValidGrundMax = Number(s.grund) > 0 && Number(s.max) > 0;
+    const hasPauschale = Number(s.pauschale) > 0;
+    if (!hasValidGrundMax && !hasPauschale) {
+      out.push({ level: 'warn', text: `${rollenLabel(rk)} ist eingeteilt, aber der Satz ist unvollständig (Grund-/Max-Satz oder Pauschale 0 €).` });
     }
   }
   if (project.sachbearbeiterPersonId) {

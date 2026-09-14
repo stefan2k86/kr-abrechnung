@@ -81,6 +81,33 @@ ok('Läufer Stufe 3 gemischt = 21 €', personBetrag({ einsaetze: [
   { abschnittId: 'm2', rolleKey: 'laeufer_3', imEinsatz: true },
 ] }, lpMix));
 
+// ---- Pauschale: fester Betrag unabhängig von Dauer ----
+group('Pauschale-Rollen (Imbissleiter/Imbisshelfer)');
+const ilSatz = { pauschale: 20 };
+const ihSatz = { pauschale: 15 };
+ok('Imbissleiter d=30 → 20 €', betragJeAbschnitt(30, ilSatz) === 20, betragJeAbschnitt(30, ilSatz));
+ok('Imbissleiter d=120 → 20 €', betragJeAbschnitt(120, ilSatz) === 20, betragJeAbschnitt(120, ilSatz));
+ok('Imbissleiter d=300 → 20 € (nicht 3×20)', betragJeAbschnitt(300, ilSatz) === 20, betragJeAbschnitt(300, ilSatz));
+ok('Imbisshelfer d=45 → 15 €', betragJeAbschnitt(45, ihSatz) === 15, betragJeAbschnitt(45, ihSatz));
+ok('Imbisshelfer d=250 → 15 €', betragJeAbschnitt(250, ihSatz) === 15, betragJeAbschnitt(250, ihSatz));
+// Pauschale in personBetrag-Kontext: 2 Abschnitte
+const pauschaleProj = {
+  saetze: defaultSaetze(),
+  sachbearbeiterPersonId: null,
+  personen: [],
+  abschnitte: [
+    { id: 'p1', nr: 1, beginn: '09:00', ende: '09:30' },  // 30 min
+    { id: 'p2', nr: 2, beginn: '10:00', ende: '13:20' },  // 200 min
+  ],
+};
+ok('Imbissleiter 2 Abschnitte (30+200min) = 40 € (2×20)', personBetrag({ einsaetze: [
+  { abschnittId: 'p1', rolleKey: 'imbissleiter', imEinsatz: true },
+  { abschnittId: 'p2', rolleKey: 'imbissleiter', imEinsatz: true },
+] }, pauschaleProj) === 40, personBetrag({ einsaetze: [
+  { abschnittId: 'p1', rolleKey: 'imbissleiter', imEinsatz: true },
+  { abschnittId: 'p2', rolleKey: 'imbissleiter', imEinsatz: true },
+] }, pauschaleProj));
+
 // ---- Sachbearbeiter Meldeverfahren: +12 € je Abschnitt, zusätzlich zur Rolle ----
 group('Sachbearbeiter Meldeverfahren (+12 €/Abschnitt, zusätzlich)');
 const sbProj = {
