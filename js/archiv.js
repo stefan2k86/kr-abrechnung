@@ -40,3 +40,9 @@ export function ladeAusArchiv(id) {
   const eintrag = ladeListe().find(e => e.id === id);
   return eintrag ? eintrag.projekt : null;
 }
+
+// Entfernt den Eintrag mit passender id aus dem Archiv. Kein Fehler, falls
+// die id nicht existiert (Liste bleibt unverändert).
+export function loescheAusArchiv(id) {
+  schreibeListe(ladeListe().filter(e => e.id !== id));
+}

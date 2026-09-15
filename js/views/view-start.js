@@ -1,4 +1,4 @@
-import { el } from '../dom.js';
+import { el, clear } from '../dom.js';
 import * as store from '../state.js';
 import * as archiv from '../archiv.js';
 import { confirmDialog } from '../dom.js';
@@ -64,10 +64,19 @@ export function viewStart(host, { goto }) {
             el('p', {}, el('strong', {}, eintrag.veranstaltungName || '(ohne Namen)')),
             el('p', { class: 'hint' }, `${eintrag.datumVon || '?'} – ${eintrag.datumBis || '?'}`),
           ),
-          el('button', {
-            class: 'secondary',
-            onclick: () => { store.setProject(archiv.ladeAusArchiv(eintrag.id)); goto('personen'); },
-          }, 'Laden'),
+          el('div', { class: 'row' },
+            el('button', {
+              class: 'secondary',
+              onclick: () => { store.setProject(archiv.ladeAusArchiv(eintrag.id)); goto('personen'); },
+            }, 'Laden'),
+            el('button', {
+              class: 'ghost danger',
+              onclick: () => confirmDialog(
+                `Archiveintrag „${eintrag.veranstaltungName || '(ohne Namen)'}“ endgültig löschen?`,
+                () => { archiv.loescheAusArchiv(eintrag.id); clear(host); viewStart(host, { goto }); },
+              ),
+            }, 'Löschen'),
+          ),
         )),
       ),
     );
