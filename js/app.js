@@ -18,6 +18,7 @@ const VIEWS = [
 ];
 
 let current = 'start';
+let letzteAngezeigteView = null;
 
 export function goto(id) {
   if (!VIEWS.some(v => v.id === id)) return;
@@ -51,11 +52,17 @@ function nav() {
 function render() {
   nav();
   const p = store.getProject();
+  const scrollY = window.scrollY;
   const host = clear(document.getElementById('view'));
   let view = VIEWS.find(v => v.id === current);
   if (!IMMER_OFFEN.has(current) && !hatDaten(p)) view = VIEWS[0];
   view.render(host, { goto });
-  window.scrollTo(0, 0);
+  if (view.id !== letzteAngezeigteView) {
+    window.scrollTo(0, 0);
+  } else {
+    window.scrollTo(0, scrollY);
+  }
+  letzteAngezeigteView = view.id;
 }
 
 store.subscribe((_p, meta) => {
