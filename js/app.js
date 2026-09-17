@@ -53,15 +53,21 @@ function render() {
   nav();
   const p = store.getProject();
   const scrollY = window.scrollY;
+  // Fokus vor dem Entfernen der alten Ansicht lösen: Mobile Browser scrollen
+  // sonst automatisch zum zuletzt fokussierten Element, sobald es aus dem DOM
+  // verschwindet (typisches iOS-/Android-Safari-Verhalten bei Buttons/Selects
+  // in der Personen-Matrix) und überschreiben damit den Restore unten.
+  document.activeElement?.blur();
   const host = clear(document.getElementById('view'));
   let view = VIEWS.find(v => v.id === current);
   if (!IMMER_OFFEN.has(current) && !hatDaten(p)) view = VIEWS[0];
   view.render(host, { goto });
-  if (view.id !== letzteAngezeigteView) {
-    window.scrollTo(0, 0);
-  } else {
-    window.scrollTo(0, scrollY);
-  }
+  const zielScroll = view.id !== letzteAngezeigteView ? 0 : scrollY;
+  window.scrollTo(0, zielScroll);
+  // Zusätzlich einen Frame später erneut setzen: Manche mobilen Browser
+  // korrigieren den Scroll erst nach dem Layout-Pass wieder auf die alte
+  // Position, was den obigen sofortigen Aufruf sonst rückgängig machen kann.
+  requestAnimationFrame(() => window.scrollTo(0, zielScroll));
   letzteAngezeigteView = view.id;
 }
 
